@@ -1,6 +1,9 @@
-require 'kit'
 require 'database_cleaner'
 require 'factory_girl'
+require 'require_all'
+
+require 'kit'
+require_rel '../models'
 require 'factories'
 
 RSpec.configure do |c|

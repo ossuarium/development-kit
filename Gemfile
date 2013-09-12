@@ -9,6 +9,7 @@ group :development do
   gem 'guard-rspec', '~> 3.0.3'
   gem 'database_cleaner', '1.0.1'
   gem 'factory_girl', '~> 4.2.0'
+  gem 'require_all', '~> 1.3.0'
 end
 
 # Add other gem dependencies for you kit below.
