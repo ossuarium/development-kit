@@ -1,4 +1,4 @@
 {
-  "name"  : "skeleton-kit",
+  "name"  : "development-kit",
   "files" : [ { "git" : 1 } ]
 }
