@@ -8,7 +8,7 @@ class CreateBasicTables < ActiveRecord::Migration
     create_table(:groups) do |t|
       t.string :name
     end
-    add_index :groups, :name, :unique => true
+    add_index :groups, :name, unique: true
 
     create_table(:users) do |t|
       t.string :name
