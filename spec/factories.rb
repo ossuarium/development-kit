@@ -1,14 +1,22 @@
 FactoryGirl.define do
 
   factory :group, class: Kit::Group do
-    id 1
-    name 'default group'
-    initialize_with { Kit::Group.find_or_create_by id: id }
+    sequence(:id) { |n| n }
+    name 'my_group'
+    initialize_with { Kit::Group.find_or_create_by name: name }
   end
 
   factory :bit, class: Kit::Bit do
-    id 1
-    name 'a bit'
+    sequence(:id) { |n| n }
+    name 'my_site'
     group
+    root_domain 'example.com'
+    initialize_with { Kit::Bit.find_or_create_by name: name }
+  end
+
+  factory :database, class: Kit::Database do
+    sequence(:id) { |n| n }
+    name 'my_db'
+    bit
   end
 end
