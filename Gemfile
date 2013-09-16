@@ -24,3 +24,4 @@ end
 # Add other gem dependencies for you kit below.
 
 gem 'require_all', '~> 1.3.0'
+gem 'grit', '~> 2.5.0'
