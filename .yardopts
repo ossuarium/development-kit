@@ -1,0 +1,11 @@
+--protected
+actions/**/*.rb
+models/**/*.rb
+-
+README.rdoc
+actions/README.rdoc
+models/README.rdoc
+migrations/README.rdoc
+CHANGELOG.rdoc
+VERSION
+LICENCE.txt
