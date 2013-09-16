@@ -8,6 +8,8 @@ require 'factories'
 
 RSpec.configure do |c|
 
+  c.expect_with(:rspec) { |e| e.syntax = :expect }
+
   c.include FactoryGirl::Syntax::Methods
 
   c.before :suite do
