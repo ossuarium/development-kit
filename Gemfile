@@ -22,3 +22,5 @@ group :development do
 end
 
 # Add other gem dependencies for you kit below.
+
+gem 'require_all', '~> 1.3.0'
