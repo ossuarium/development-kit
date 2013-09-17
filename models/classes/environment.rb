@@ -6,13 +6,19 @@ class Kit::Bit::Environment
 
   # All environment's temporary directories will be rooted under here.
   TMP_DIR = '/tmp'
+
+  # Prepended to the name of the environment's working directory.
   DIR_PREFIX = 'development-kit_'
 
-  attr_reader :site, :treeish, :directory, :tmp_dir, :dir_prefix
+  # Name of config file to load, relative to environment's working directory.
+  CONFIG_FILE = 'development_config.yml'
+
+  attr_reader :site, :treeish, :directory, :tmp_dir, :dir_prefix, :populated
 
   def initialize site: nil, treeish: nil, tmp_dir: TMP_DIR, dir_prefix: DIR_PREFIX
     @tmp_dir = TMP_DIR
     @dir_prefix = DIR_PREFIX
+    @populated = false
     self.site = site if site
     self.treeish = treeish if treeish
   end
@@ -39,14 +45,22 @@ class Kit::Bit::Environment
   end
 
   def cleanup
-    FileUtils.remove_entry_secure directory
+    FileUtils.remove_entry_secure directory if @directory
     @directory = nil
+    @populated = false
   end
 
   def populate
+    cleanup if populated
     raise RuntimeError, "Cannot populate without 'site'" if site.nil?
     raise RuntimeError, "Cannot populate without 'treeish'" if treeish.nil?
 
     Kit::Bit::Utility.extract_repo site.repo, treeish, directory
+    @populated = true
+  end
+
+  def config
+    raise RuntimeError, "Cannot load config unless populated" unless populated
+    YAML.load_file "#{directory}/#{CONFIG_FILE}"
   end
 end

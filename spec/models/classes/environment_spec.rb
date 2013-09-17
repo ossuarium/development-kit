@@ -5,6 +5,14 @@ describe Kit::Bit::Environment do
   let(:site_1) { create :bit, name: 'site_1' }
   let(:site_2) { create :bit, name: 'site_2' }
 
+  subject(:env) { Kit::Bit::Environment.new }
+
+  after :all do
+    Dir.glob("#{Kit::Bit::Environment::TMP_DIR}/#{Kit::Bit::Environment::DIR_PREFIX}*").each do |dir|
+      FileUtils.remove_entry_secure dir
+    end
+  end
+
   describe ".new" do
 
     it "creates a new empty object" do
@@ -27,8 +35,6 @@ describe Kit::Bit::Environment do
 
   describe "#site" do
 
-    subject(:env) { Kit::Bit::Environment.new }
-
     it "must be a Kit::Bit" do
       expect { env.site = 'site_1' }.to raise_error TypeError
     end
@@ -40,8 +46,6 @@ describe Kit::Bit::Environment do
   end
 
   describe "#treeish" do
-
-    subject(:env) { Kit::Bit::Environment.new }
 
     it "must be a string" do
       expect { env.treeish = 1 }.to raise_error TypeError
@@ -80,13 +84,10 @@ describe Kit::Bit::Environment do
 
     context "when required values are not set" do
 
-      subject(:env) { Kit::Bit::Environment.new }
-
       it "fails if site is not set" do
         expect { env.directory }.to raise_error RuntimeError
       end
     end
-
   end
 
   describe "#cleanup" do
@@ -94,8 +95,8 @@ describe Kit::Bit::Environment do
     subject(:env) { Kit::Bit::Environment.new site: site_1 }
 
     it "removes the directory and resets @directory" do
-      env.stub(:directory).and_return('/tmp/rand_dir')
-      FileUtils.should_receive(:remove_entry_secure).with('/tmp/rand_dir')
+      env.directory
+      FileUtils.should_receive(:remove_entry_secure).with(env.directory)
       env.cleanup
       expect(env.instance_variable_get :@directory).to eq nil
     end
@@ -107,18 +108,25 @@ describe Kit::Bit::Environment do
 
       subject(:env) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
 
-      it "extracts the repo to the directory" do
+      before :each do
         site_1.stub(:repo).and_return(double Grit::Repo)
-        env.stub(:directory).and_return('/tmp/rand_dir')
-        expect(Kit::Bit::Utility).to receive(:extract_repo).with(site_1.repo, 'master', '/tmp/rand_dir')
+      end
+
+      it "will cleanup if populated" do
+        Kit::Bit::Utility.stub(:extract_repo)
+        env.populate
+        expect(env).to receive :cleanup
         env.populate
       end
 
+      it "extracts the repo to the directory and sets populated true" do
+        expect(Kit::Bit::Utility).to receive(:extract_repo).with(site_1.repo, 'master', env.directory)
+        env.populate
+        expect(env.populated).to eq true
+      end
     end
 
     context "missing required values" do
-
-      subject(:env) { Kit::Bit::Environment.new }
 
       it "fails when missing site" do
         env.treeish = 'master'
@@ -129,6 +137,21 @@ describe Kit::Bit::Environment do
         env.site = site_1
         expect { env.populate }.to raise_error RuntimeError
       end
+    end
+  end
+
+  describe "config" do
+
+    subject(:env) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
+
+    it "cannot load config if not populated" do
+      expect { env.config }.to raise_error RuntimeError
+    end
+
+    it "loads the config if populated" do
+      env.stub(:populated).and_return(true)
+      expect(YAML).to receive(:load_file).with("#{env.directory}/development_config.yml")
+      env.config
     end
   end
 end
