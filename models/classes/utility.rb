@@ -1,5 +1,6 @@
 require 'archive/tar/minitar'
 
+# Utility functions for this kit.
 class Kit::Bit::Utility
 
   protected
