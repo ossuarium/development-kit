@@ -15,7 +15,7 @@ describe Kit::Bit::Environment do
     end
 
     it "creates a new object with site" do
-      env = Kit::Bit::Environment.new(site: site_1)
+      env = Kit::Bit::Environment.new site: site_1
       expect(env.site).to equal site_1
     end
 

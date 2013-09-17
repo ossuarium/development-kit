@@ -4,11 +4,16 @@ require 'grit'
 
 require_rel 'classes'
 
+# Bits in this kit are sites.
+# Sites in a single group all use the same repository.
+# Individual sites represent different deployments.
 class Kit::Bit < ActiveRecord::Base
+
   has_many :databases
 
   PRODUCTION ||= 'production'
 
+  # The git repository for this bit as a Grit::Repo.
   # @return [Grit::Repo]
   def repo
     Grit::Git.git_max_size = 100 * 1048576

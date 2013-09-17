@@ -1,5 +1,10 @@
+# An environment is populated with the contents of
+# a site's repository at a specified commit.
+# The environment's files are rooted in a temporary directory.
+# An environment is the primary way to interact with a site's file.
 class Kit::Bit::Environment
 
+  # All environment's temporary directories will be rooted under here.
   TMP_DIR = '/tmp'
   DIR_PREFIX = 'development-kit_'
 
@@ -39,7 +44,6 @@ class Kit::Bit::Environment
   end
 
   def populate
-
     raise RuntimeError, "Cannot populate without 'site'" if site.nil?
     raise RuntimeError, "Cannot populate without 'treeish'" if treeish.nil?
 
