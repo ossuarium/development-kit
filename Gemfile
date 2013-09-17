@@ -26,3 +26,4 @@ end
 gem 'require_all', '~> 1.3.0'
 gem 'grit', '~> 2.5.0'
 gem 'archive-tar-minitar', '~> 0.5.2'
+gem 'sprockets', '~> 2.10.0'
