@@ -1,4 +1,5 @@
 require 'archive/tar/minitar'
+require 'digest/sha1'
 
 # Utility functions for this kit.
 class Kit::Bit::Utility
@@ -46,5 +47,14 @@ class Kit::Bit::Utility
         input.extract_entry directory, entry if files.include? entry.name
       end
     end
+  end
+
+  # Generates a new filename by hashing the file contents.
+  # @param [String] path
+  # @return [String] new filename of the form file-HASH.extname
+  def self.hash_name path
+    extname = File.extname path
+    basename = path.chomp extname
+    "#{basename}-#{Digest::SHA1.hexdigest(File.read path)}#{extname}"
   end
 end
