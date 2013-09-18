@@ -44,7 +44,7 @@ describe Kit::Bit::Assets do
     context "no settings" do
 
       it "does not fail when settings not set" do
-        assets.settings = nil
+        assets.settings = {}
         expect { assets.load_settings }.to_not raise_error
       end
     end
@@ -76,7 +76,7 @@ describe Kit::Bit::Assets do
     context "when no paths set" do
 
       it "should not fail" do
-        assets.paths = nil
+        assets.paths = {}
         expect { assets.load_paths }.to_not raise_error
       end
     end
@@ -96,8 +96,77 @@ describe Kit::Bit::Assets do
       assets.assets
     end
 
+    it "should not load settings and paths twice" do
+      expect(assets).to receive(:load_settings).once
+      expect(assets).to receive(:load_paths).once
+      assets.assets
+      assets.assets
+    end
+
     it "should return compiled assets" do
       expect(assets.assets).to equal assets.sprockets
+    end
+  end
+
+  describe "#write" do
+
+    let(:asset) { double Sprockets::Asset }
+    let(:source) { %q{alert('test')} }
+    let(:hash) { Digest::SHA1.hexdigest source }
+    let(:name) { "app-#{hash}.js" }
+
+    before :each do
+      assets.assets.stub(:[]).with('app').and_return(asset)
+      asset.stub(:to_s).and_return(source)
+      asset.stub(:logical_path).and_return('app.js')
+    end
+
+    context "path is given with no directory" do
+
+      it "writes to relative path" do
+        expect(asset).to receive(:write_to).with("tmp/path/#{name}")
+        assets.write 'app', path: 'tmp/path'
+      end
+
+      it "writes to absolute path" do
+        expect(asset).to receive(:write_to).with("/tmp/path/#{name}")
+        assets.write 'app', path: '/tmp/path'
+      end
+    end
+
+    context "path is given with directory" do
+
+      it "writes to relative path under directory" do
+        assets.directory = '/tmp/dir'
+        expect(asset).to receive(:write_to).with("/tmp/dir/path/#{name}")
+        assets.write 'app', path: 'path'
+      end
+
+      it "writes to absolute path" do
+        assets.directory = '/tmp/dir'
+        expect(asset).to receive(:write_to).with("/tmp/path/#{name}")
+        assets.write 'app', path: '/tmp/path'
+      end
+    end
+
+    context "no path is given with directory" do
+      it "writes to relative path under directory" do
+        assets.directory = '/tmp/dir'
+        expect(asset).to receive(:write_to).with("/tmp/dir/#{name}")
+        assets.write 'app'
+      end
+    end
+
+    context "no path is given with no directory" do
+      it "writes to relative path" do
+        expect(asset).to receive(:write_to).with("#{name}")
+        assets.write 'app'
+      end
+    end
+
+    it "compresses assets if asked" do
+      expect(asset).to receive(:write_to).with("#{name}", compress: true)
+      assets.write 'app', compress: true
     end
   end
 end

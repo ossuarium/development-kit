@@ -50,5 +50,12 @@ describe Kit::Bit::Utility do
       File.stub(:read).and_return('foo')
       expect(Kit::Bit::Utility.hash_name 'path/to/file.js').to eq 'path/to/file-1234567890.js'
     end
+
+    it "can be supplied with contents when file does not exist" do
+      contents = 'file contents'
+      hash = Digest::SHA1.hexdigest contents
+      expect(Kit::Bit::Utility.hash_name 'path/to/file.js', contents).to eq "path/to/file-#{hash}.js"
+    end
+
   end
 end

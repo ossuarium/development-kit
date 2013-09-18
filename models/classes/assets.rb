@@ -7,7 +7,7 @@ class Kit::Bit::Assets
 
   attr_accessor :directory, :settings, :paths
 
-  def initialize directory: nil, settings: nil, paths: nil
+  def initialize directory: '', settings: {}, paths: {}
     self.directory = directory
     self.settings = settings
     self.paths = paths
@@ -23,22 +23,43 @@ class Kit::Bit::Assets
   def load_settings
     SPROCKETS_CFG.each do |cfg|
       sprockets.send "#{cfg}=".to_sym, settings[cfg] if settings[cfg]
-    end if settings
+    end
   end
 
   # Load paths into the sprockets environment.
   # Values are loaded from @paths.
   def load_paths
     paths.each do |path|
-      path = "#{directory + "/" if directory}#{path}"
-      sprockets.append_path Kit::Bit::Utility.validate_path(path, directory)
-    end if paths
+      sprockets.append_path "#{directory + '/' unless directory.empty?}#{path}"
+    end
   end
 
   # @return [Sprockets::Environment] sprockets environment with settings and paths loaded
   def assets
-    load_settings
-    load_paths
+    unless @loaded
+      load_settings
+      load_paths
+    end
+    @loaded = true
     sprockets
+  end
+
+  def write target, path: '', compress: false
+    asset = assets[target]
+
+    if path.empty?
+      path = directory
+    elsif ! directory.empty?
+      path = "#{directory}/#{path}"
+    end unless path =~ /^\//
+
+    path += '/' unless path.empty?
+    path += Kit::Bit::Utility.hash_name asset.logical_path.to_s, asset.to_s
+
+    if compress
+      asset.write_to path, compress: true
+    else
+      asset.write_to path
+    end
   end
 end
