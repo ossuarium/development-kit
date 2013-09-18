@@ -159,14 +159,22 @@ describe Kit::Bit::Assets do
 
     context "no path is given with no directory" do
       it "writes to relative path" do
-        expect(asset).to receive(:write_to).with("#{name}")
+        expect(asset).to receive(:write_to).with(name)
         assets.write 'app'
       end
     end
 
-    it "compresses assets if asked" do
-      expect(asset).to receive(:write_to).with("#{name}", compress: true)
-      assets.write 'app', compress: true
+    context "when gzip true" do
+
+      it "appends .gz to the path" do
+        asset.stub(:write_to)
+        expect(assets.write 'app', gzip: true).to eq "#{name}.gz"
+      end
+
+      it "it gzips the assets" do
+        expect(asset).to receive(:write_to).with("#{name}.gz", compress: true)
+        assets.write 'app', gzip: true
+      end
     end
   end
 end

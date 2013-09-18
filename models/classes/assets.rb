@@ -44,7 +44,7 @@ class Kit::Bit::Assets
     sprockets
   end
 
-  def write target, path: '', compress: false
+  def write target, path: '', gzip: false
     asset = assets[target]
 
     if path.empty?
@@ -55,11 +55,13 @@ class Kit::Bit::Assets
 
     path += '/' unless path.empty?
     path += Kit::Bit::Utility.hash_name asset.logical_path.to_s, asset.to_s
+    path += '.gz' if gzip
 
-    if compress
+    if gzip
       asset.write_to path, compress: true
     else
       asset.write_to path
     end
+    path
   end
 end
