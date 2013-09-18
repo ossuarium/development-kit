@@ -63,10 +63,13 @@ describe Kit::Bit::Environment do
 
       subject(:env) { Kit::Bit::Environment.new site: site_1 }
 
+      before :each do
+        Kit::Bit::Utility.stub(:make_random_directory).and_return('/tmp/rand_dir')
+      end
+
       context "when directory is unset" do
 
         it "makes and returns a random directory" do
-          Kit::Bit::Utility.stub(:make_random_directory).and_return('/tmp/rand_dir')
           expect(env.directory).to eq '/tmp/rand_dir'
         end
       end
@@ -74,7 +77,6 @@ describe Kit::Bit::Environment do
       context "when directory is set" do
 
         it "returns the current directory" do
-          Kit::Bit::Utility.stub(:make_random_directory).and_return('/tmp/rand_dir')
           expect(Kit::Bit::Utility).to receive(:make_random_directory).once
           env.directory
           expect(env.directory).to eq '/tmp/rand_dir'
