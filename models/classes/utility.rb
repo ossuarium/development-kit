@@ -25,8 +25,7 @@ class Kit::Bit::Utility
   # @param [String] path
   # @param [String] root directory where path should be rooted under
   # @return [String] input path if valid
-  def self.validate_path path, root=nil
-    root = '' if root.nil?
+  def self.validate_path path, root=''
     case
     when path[/(\.\.\/|~\/)/] then raise RuntimeError
     when File.expand_path(path, root)[/^#{root}/].nil? then raise RuntimeError
