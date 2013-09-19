@@ -46,8 +46,8 @@ describe Kit::Bit::Utility do
   describe "hash_name" do
 
     it "returns a name with a hash" do
-      Digest::SHA1.stub(:hexdigest).and_return('1234567890')
-      File.stub(:read).and_return('foo')
+      allow(Digest::SHA1).to receive(:hexdigest).and_return('1234567890')
+      allow(File).to receive(:read).and_return('foo')
       expect(Kit::Bit::Utility.hash_name 'path/to/file.js').to eq 'path/to/file-1234567890.js'
     end
 

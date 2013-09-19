@@ -136,14 +136,14 @@ describe Kit::Bit::Assets do
     let(:name) { "app-#{hash}.js" }
 
     before :each do
-      assets.assets.stub(:[]).with('app').and_return(asset)
+      allow(assets.assets).to receive(:[]).with('app').and_return(asset)
       allow(asset).to receive(:to_s).and_return(source)
       allow(asset).to receive(:logical_path).and_return('app.js')
     end
 
     context "asset not found" do
       it "returns nil" do
-        assets.assets.stub(:[]).with('not_here').and_return(nil)
+        allow(assets.assets).to receive(:[]).with('not_here').and_return(nil)
         expect(assets.write 'not_here').to be nil
       end
     end
@@ -194,7 +194,7 @@ describe Kit::Bit::Assets do
     context "when gzip true" do
 
       it "appends .gz to the path" do
-        asset.stub(:write_to)
+        allow(asset).to receive(:write_to)
         expect(assets.write 'app', gzip: true).to eq name
       end
 
@@ -236,9 +236,9 @@ describe Kit::Bit::Assets do
 
     before :each do
       assets.type = :javascripts
-      assets.stub(:write).with('app').and_return('app-1234.js')
-      assets.stub(:write).with('vendor/modernizr').and_return('vendor/modernizr-5678.js')
-      assets.assets.stub(:[]).with('vendor/tracking').and_return(asset)
+      allow(assets).to receive(:write).with('app').and_return('app-1234.js')
+      allow(assets).to receive(:write).with('vendor/modernizr').and_return('vendor/modernizr-5678.js')
+      allow(assets.assets).to receive(:[]).with('vendor/tracking').and_return(asset)
       allow(asset).to receive(:to_s).and_return(%q{alert('track');})
     end
 

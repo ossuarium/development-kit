@@ -66,7 +66,7 @@ describe Kit::Bit::Environment do
       subject(:env) { Kit::Bit::Environment.new site: site_1 }
 
       before :each do
-        Kit::Bit::Utility.stub(:make_random_directory).and_return('/tmp/rand_dir')
+        allow(Kit::Bit::Utility).to receive(:make_random_directory).and_return('/tmp/rand_dir')
       end
 
       context "when directory is unset" do
@@ -113,7 +113,7 @@ describe Kit::Bit::Environment do
       subject(:env) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
 
       before :each do
-        site_1.stub(:repo).and_return(double Grit::Repo)
+        allow(site_1).to receive(:repo).and_return(double Grit::Repo)
       end
 
       it "will cleanup if populated" do
@@ -154,7 +154,7 @@ describe Kit::Bit::Environment do
     end
 
     it "loads the config if populated" do
-      env.stub(:populated).and_return(true)
+      allow(env).to receive(:populated).and_return(true)
       expect(YAML).to receive(:load_file).with("#{env.directory}/development_config.yml")
       env.config
     end
