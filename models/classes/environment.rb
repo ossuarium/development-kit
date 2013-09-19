@@ -4,23 +4,29 @@
 # An environment is the primary way to interact with a site's files.
 class Kit::Bit::Environment
 
-  # All environment's temporary directories will be rooted under here.
-  TMP_DIR = '/tmp'
+  # Default {#settings}.
+  DEFAULT_SETTINGS = {
+    # all environment's temporary directories will be rooted under here
+    tmp_dir: '/tmp',
 
-  # Prepended to the name of the environment's working directory.
-  DIR_PREFIX = 'development-kit_'
+    # prepended to the name of the environment's working directory
+    dir_prefix: 'development-kit_',
 
-  # Name of config file to load, relative to environment's working directory.
-  CONFIG_FILE = 'development_config.yml'
+    # name of config file to load, relative to environment's working directory
+    config_file: 'development_config.yml'
+  }
 
-  attr_reader :site, :treeish, :directory, :tmp_dir, :dir_prefix, :populated
+  attr_reader :site, :treeish, :directory, :populated, :settings
 
-  def initialize site: nil, treeish: nil, tmp_dir: TMP_DIR, dir_prefix: DIR_PREFIX
-    @tmp_dir = TMP_DIR
-    @dir_prefix = DIR_PREFIX
+  def initialize site: nil, treeish: nil, settings: {}
+    self.settings = DEFAULT_SETTINGS.merge settings
     @populated = false
     self.site = site if site
     self.treeish = treeish if treeish
+  end
+
+  def settings= settings
+    @settings = DEFAULT_SETTINGS.merge settings
   end
 
   def site= site
@@ -38,7 +44,7 @@ class Kit::Bit::Environment
   def directory
     raise RuntimeError if site.nil?
     if @directory.nil?
-      @directory = Kit::Bit::Utility.make_random_directory tmp_dir, "#{dir_prefix}#{site.name}_"
+      @directory = Kit::Bit::Utility.make_random_directory settings[:tmp_dir], "#{settings[:dir_prefix]}#{site.name}_"
     else
       @directory
     end
@@ -61,6 +67,6 @@ class Kit::Bit::Environment
 
   def config
     raise RuntimeError, "Cannot load config unless populated" unless populated
-    YAML.load_file "#{directory}/#{CONFIG_FILE}"
+    YAML.load_file "#{directory}/#{settings[:config_file]}"
   end
 end

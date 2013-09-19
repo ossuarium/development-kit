@@ -15,21 +15,21 @@ describe Kit::Bit::Environment do
 
   describe ".new" do
 
-    it "creates a new empty object" do
-      env = Kit::Bit::Environment.new
-      expect(env).to be_an_instance_of Kit::Bit::Environment
-      expect(env.site).to be_nil
-      expect(env.treeish).to be_nil
+    it "should set default settings" do
+      expect(env.settings).to eq Kit::Bit::Environment::DEFAULT_SETTINGS
     end
 
-    it "creates a new object with site" do
-      env = Kit::Bit::Environment.new site: site_1
-      expect(env.site).to equal site_1
+    it "should merge default settings" do
+      env = Kit::Bit::Environment.new settings: { tmp_dir: '/tmp/path' }
+      expect(env.settings).to eq Kit::Bit::Environment::DEFAULT_SETTINGS.merge(tmp_dir: '/tmp/path')
     end
+  end
 
-    it "creates a new object with treeish" do
-      env = Kit::Bit::Environment.new treeish: 'master'
-      expect(env.treeish ).to eq 'master'
+  describe "#settings=" do
+
+    it "should merge with default settings" do
+      env.settings[:tmp_dir] = '/tmp/path'
+      expect(env.settings).to eq Kit::Bit::Environment::DEFAULT_SETTINGS.merge(tmp_dir: '/tmp/path')
     end
   end
 
