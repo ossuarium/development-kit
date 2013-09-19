@@ -15,6 +15,26 @@ describe Kit::Bit::Assets do
 
   subject(:assets) { Kit::Bit::Assets.new }
 
+  describe ".new" do
+
+    it "should set default settings" do
+      expect(assets.settings).to eq Kit::Bit::Assets::DEFAULT_SETTINGS
+    end
+
+    it "should merge default settings" do
+      assets = Kit::Bit::Assets.new settings: { src_pre: '{{' }
+      expect(assets.settings).to eq Kit::Bit::Assets::DEFAULT_SETTINGS.merge(src_pre: '{{')
+    end
+  end
+
+  describe "#settings=" do
+
+    it "should merge with default settings" do
+      assets.settings[:src_pre] = '{{'
+      expect(assets.settings).to eq Kit::Bit::Assets::DEFAULT_SETTINGS.merge(src_pre: '{{')
+    end
+  end
+
   describe "#sprockets" do
 
     it "returns a new sprockets environment" do
@@ -117,8 +137,15 @@ describe Kit::Bit::Assets do
 
     before :each do
       assets.assets.stub(:[]).with('app').and_return(asset)
-      asset.stub(:to_s).and_return(source)
-      asset.stub(:logical_path).and_return('app.js')
+      allow(asset).to receive(:to_s).and_return(source)
+      allow(asset).to receive(:logical_path).and_return('app.js')
+    end
+
+    context "asset not found" do
+      it "returns nil" do
+        assets.assets.stub(:[]).with('not_here').and_return(nil)
+        expect(assets.write 'not_here').to be nil
+      end
     end
 
     context "path is given with no directory" do
@@ -136,31 +163,31 @@ describe Kit::Bit::Assets do
 
     context "path is given with directory" do
 
-      it "writes to relative path under directory" do
+      it "writes to relative path under directory and returns the hashed logical path" do
         assets.directory = '/tmp/dir'
         expect(asset).to receive(:write_to).with("/tmp/dir/path/#{name}")
-        assets.write 'app', path: 'path'
+        expect(assets.write 'app', path: 'path').to eq name
       end
 
-      it "writes to absolute path" do
+      it "writes to absolute path and returns the hashed logical path" do
         assets.directory = '/tmp/dir'
         expect(asset).to receive(:write_to).with("/tmp/path/#{name}")
-        assets.write 'app', path: '/tmp/path'
+        expect(assets.write'app', path: '/tmp/path').to eq name
       end
     end
 
-    context "no path is given with directory" do
+    context "no path is given with directory and returns the hashed logical path" do
       it "writes to relative path under directory" do
         assets.directory = '/tmp/dir'
         expect(asset).to receive(:write_to).with("/tmp/dir/#{name}")
-        assets.write 'app'
+        expect(assets.write 'app').to eq name
       end
     end
 
     context "no path is given with no directory" do
       it "writes to relative path" do
         expect(asset).to receive(:write_to).with(name)
-        assets.write 'app'
+        expect(assets.write 'app').to eq name
       end
     end
 
@@ -168,12 +195,70 @@ describe Kit::Bit::Assets do
 
       it "appends .gz to the path" do
         asset.stub(:write_to)
-        expect(assets.write 'app', gzip: true).to eq "#{name}.gz"
+        expect(assets.write 'app', gzip: true).to eq name
       end
 
-      it "it gzips the assets" do
-        expect(asset).to receive(:write_to).with("#{name}.gz", compress: true)
+      it "it gzips the assets as well" do
+        expect(asset).to receive(:write_to).at_most(:once).with("#{name}.gz", compress: true)
+        expect(asset).to receive(:write_to).at_most(:once).with(name)
         assets.write 'app', gzip: true
+      end
+    end
+  end
+
+  describe "#update_source and #update_source!" do
+
+    let(:asset) { double Sprockets::Asset }
+
+    let(:source) do
+      <<-EOF
+        <head>
+          <script src="[% javascript app %]"></script>
+          <script src="[% javascript vendor/modernizr %]"></script>
+          <script>
+            [% javascript inline vendor/tracking %]
+          </script>
+        </head>
+      EOF
+    end
+
+    let(:result) do
+      <<-EOF
+        <head>
+          <script src="app-1234.js"></script>
+          <script src="vendor/modernizr-5678.js"></script>
+          <script>
+            alert('track');
+          </script>
+        </head>
+      EOF
+    end
+
+    before :each do
+      assets.type = :javascripts
+      assets.stub(:write).with('app').and_return('app-1234.js')
+      assets.stub(:write).with('vendor/modernizr').and_return('vendor/modernizr-5678.js')
+      assets.assets.stub(:[]).with('vendor/tracking').and_return(asset)
+      allow(asset).to receive(:to_s).and_return(%q{alert('track');})
+    end
+
+    describe "#update_source!" do
+
+      it "replaces asset tags in sources" do
+        assets.update_source! source
+        expect(source).to eq result
+      end
+    end
+
+    describe "#update_source" do
+
+      it "replaces asset tags in sources" do
+        expect(assets.update_source source).to eq result
+      end
+
+      it "does not change input string" do
+        assets.update_source source
+        expect(source).to eq source
       end
     end
   end
