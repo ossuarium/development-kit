@@ -1,6 +1,10 @@
 # development-kit
 
-This kit is *under development* and will have a beta release _soon_.
+This kit is *under development* and will be in beta _soon_.
+
+_Currently in alpha status._
+
+*See the for CHANGELOG for current progress.*
 
 This is a kit using the [Kit framework](https://github.com/razor-x/kit) designed to manage software projects,
 specifically websites not designed using a single or standard development framework.
