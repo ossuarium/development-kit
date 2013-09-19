@@ -20,6 +20,18 @@ class Kit::Bit::Utility
     end
   end
 
+  # Forbids use of `../` and `~/` in path.
+  # Forbids absolute paths.
+  # @param [String] path
+  # @return [Boolean]
+  def self.safe_path? path
+    case
+    when path[/(\.\.\/|~\/)/] then return false
+    when path[/^\//] then return false
+    else return true
+    end
+  end
+
   # Checks that a path is really rooted under a given root directory.
   # Forbids use of `../` and `~/` in path.
   # @param [String] path

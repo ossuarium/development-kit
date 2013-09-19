@@ -159,4 +159,76 @@ describe Kit::Bit::Environment do
       environment.config
     end
   end
+
+  describe "methods that modify the working directory" do
+
+    let(:config) do
+      YAML.load <<-EOF
+        :assets:
+          :output: compiled
+          :sources:
+            - header.html
+          :javascripts:
+            :options:
+              :js_compressor: :uglifier
+              :gzip: true
+            :paths:
+              - assets/javascripts
+              - other/javascripts
+          :stylesheets:
+            :options:
+              :css_compressor: :sass
+            :paths:
+              - assets/stylesheets
+      EOF
+    end
+
+    before :each do
+      environment.site = site_1
+      environment.directory
+      allow(environment).to receive(:populated).and_return(true)
+      allow(environment).to receive(:config).and_return(config)
+    end
+
+    describe "#assets" do
+
+      subject(:assets) { environment.assets }
+
+      it "returns an array" do
+        expect(assets).to be_a Array
+      end
+
+      it "returns an array of asset objects" do
+        expect(assets[0]).to be_a Kit::Bit::Assets
+        expect(assets[1]).to be_a Kit::Bit::Assets
+      end
+
+      it "sets the directory for each asset" do
+        expect(assets[0].directory).to eq environment.directory
+        expect(assets[1].directory).to eq environment.directory
+      end
+
+      it "sets the options for each asset" do
+        expect(assets[0].options).to include js_compressor: :uglifier
+        expect(assets[0].options).to include gzip: true
+        expect(assets[1].options).to include css_compressor: :sass
+      end
+
+      it "sets the paths for each asset" do
+        expect(assets[0].paths).to include 'assets/javascripts'
+        expect(assets[0].paths).to include 'other/javascripts'
+        expect(assets[1].paths).to include 'assets/stylesheets'
+      end
+
+      it "only loads the paths for each type of asset" do
+        expect(assets[0].paths).to_not include 'assets/stylesheets'
+        expect(assets[1].paths).to_not include 'assets/javascripts'
+      end
+
+      it "does not fail if assets are not configured" do
+        allow(environment).to receive(:config).and_return({})
+        expect { assets }.not_to raise_error
+      end
+    end
+  end
 end
