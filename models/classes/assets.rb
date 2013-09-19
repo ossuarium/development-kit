@@ -29,8 +29,8 @@ class Kit::Bit::Assets
     src_pre: '[%',
     src_post: '%]',
 
-    # allowed settings for `Sprockets::Environment`
-    sprockets_cfg: [ :js_compressor, :css_compressor ]
+    # allowed options for `Sprockets::Environment`
+    sprockets_options: [ :js_compressor, :css_compressor ]
   }
 
   # @!attribute directory
@@ -48,8 +48,8 @@ class Kit::Bit::Assets
   attr_reader :settings
 
   def initialize directory: '', settings: {}, paths: {}
-    self.directory = directory
     self.settings = DEFAULT_SETTINGS.merge settings
+    self.directory = directory
     self.paths = paths
   end
 
@@ -65,7 +65,7 @@ class Kit::Bit::Assets
   # Load settings into the sprockets environment.
   # Values are loaded from {#settings}.
   def load_settings
-    settings[:sprockets_cfg].each do |cfg|
+    settings[:sprockets_options].each do |cfg|
       sprockets.send "#{cfg}=".to_sym, settings[cfg] if settings[cfg]
     end
   end
