@@ -13,8 +13,8 @@ require 'sprockets'
 #
 class Kit::Bit::Assets
 
-  # Default {#settings}.
-  DEFAULT_SETTINGS = {
+  # Default {#options}.
+  DEFAULT_OPTIONS = {
     # default path to output all saved assets;
     # can be relative to directory or absolute
     output: '',
@@ -33,28 +33,28 @@ class Kit::Bit::Assets
     sprockets_options: [ :js_compressor, :css_compressor ]
   }
 
+  # @!attribute options
+  #   @return [Hash] options (merged with {DEFAULT_OPTIONS}}.
+  #
   # @!attribute directory
   #   @return [String] directory which all paths will be relative to if set
-  #
-  # @!attribute settings
-  #   @return [Hash] settings (merged with {DEFAULT_SETTINGS}}.
   #
   # @!attribute paths
   #   @return [Array] paths to load into sprockets environment
   #
   # @!attribute type
   #   @return [Symbol] type of asset
+  attr_reader :options
   attr_accessor :directory, :paths, :type
-  attr_reader :settings
 
-  def initialize directory: '', settings: {}, paths: {}
-    self.settings = DEFAULT_SETTINGS.merge settings
+  def initialize directory: '', options: {}, paths: {}
+    self.options = DEFAULT_OPTIONS.merge options
     self.directory = directory
     self.paths = paths
   end
 
-  def settings= settings
-    @settings = DEFAULT_SETTINGS.merge settings
+  def options= options
+    @options = DEFAULT_OPTIONS.merge options
   end
 
   # @return [Sprockets::Environment] the current sprockets environment
@@ -62,11 +62,11 @@ class Kit::Bit::Assets
     @sprockets ||= Sprockets::Environment.new
   end
 
-  # Load settings into the sprockets environment.
-  # Values are loaded from {#settings}.
-  def load_settings
-    settings[:sprockets_options].each do |cfg|
-      sprockets.send "#{cfg}=".to_sym, settings[cfg] if settings[cfg]
+  # Load options into the sprockets environment.
+  # Values are loaded from {#options}.
+  def load_options
+    options[:sprockets_options].each do |opt|
+      sprockets.send "#{opt}=".to_sym, options[opt] if options[opt]
     end
   end
 
@@ -78,10 +78,10 @@ class Kit::Bit::Assets
     end
   end
 
-  # @return [Sprockets::Environment] sprockets environment with {#settings} and {#paths} loaded
+  # @return [Sprockets::Environment] sprockets environment with {#options} and {#paths} loaded
   def assets
     unless @loaded
-      load_settings
+      load_options
       load_paths
     end
     @loaded = true
@@ -93,7 +93,7 @@ class Kit::Bit::Assets
   # @param path [String] where the asset will be written relative to
   # @param gzip [Boolean] if the asset should be gzipped
   # @return [String, nil] the relative path to the written asset or `nil` if no such asset
-  def write target, path: settings[:output], gzip: settings[:gzip]
+  def write target, path: options[:output], gzip: options[:gzip]
     asset = assets[target]
 
     return if asset.nil?
@@ -118,9 +118,9 @@ class Kit::Bit::Assets
   # @note this modifies the `source` `String` in place
   def update_source! source
       # e.g. /\[%\s+javascript\s+((\S+)\s?(\S+))\s+%\]/
-      regex = /#{Regexp.escape settings[:src_pre]}\s+#{type.to_s.singularize}\s+((\S+)\s?(\S+))\s+#{Regexp.escape settings[:src_post]}/
+      regex = /#{Regexp.escape options[:src_pre]}\s+#{type.to_s.singularize}\s+((\S+)\s?(\S+))\s+#{Regexp.escape options[:src_post]}/
       source.gsub! regex do
-        if $2 == settings[:inline]
+        if $2 == options[:inline]
           assets[$3].to_s
         else
           write $1

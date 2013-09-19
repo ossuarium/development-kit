@@ -8,28 +8,28 @@ describe Kit::Bit::Environment do
   subject(:env) { Kit::Bit::Environment.new }
 
   after :all do
-    Dir.glob("#{Kit::Bit::Environment::TMP_DIR}/#{Kit::Bit::Environment::DIR_PREFIX}*").each do |dir|
+    Dir.glob("#{Kit::Bit::Environment.new.options[:tmp_dir]}/#{Kit::Bit::Environment.new.options[:dir_prefix]}*").each do |dir|
       FileUtils.remove_entry_secure dir
     end
   end
 
   describe ".new" do
 
-    it "should set default settings" do
-      expect(env.settings).to eq Kit::Bit::Environment::DEFAULT_SETTINGS
+    it "should set default options" do
+      expect(env.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS
     end
 
-    it "should merge default settings" do
-      env = Kit::Bit::Environment.new settings: { tmp_dir: '/tmp/path' }
-      expect(env.settings).to eq Kit::Bit::Environment::DEFAULT_SETTINGS.merge(tmp_dir: '/tmp/path')
+    it "should merge default options" do
+      env = Kit::Bit::Environment.new options: { tmp_dir: '/tmp/path' }
+      expect(env.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
     end
   end
 
-  describe "#settings=" do
+  describe "#options=" do
 
-    it "should merge with default settings" do
-      env.settings[:tmp_dir] = '/tmp/path'
-      expect(env.settings).to eq Kit::Bit::Environment::DEFAULT_SETTINGS.merge(tmp_dir: '/tmp/path')
+    it "should merge with default options" do
+      env.options[:tmp_dir] = '/tmp/path'
+      expect(env.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
     end
   end
 
@@ -39,9 +39,10 @@ describe Kit::Bit::Environment do
       expect { env.site = 'site_1' }.to raise_error TypeError
     end
 
-    it "cannot be redefinfed" do
+    it "cannot be redefinfed while populated" do
       env.site = site_1
-      expect { env.site = site_2 }.to raise_error RuntimeError
+      allow(env).to receive(:populated).and_return(true)
+      expect { env.site = site_2 }.to raise_error RuntimeError, /populated/
     end
   end
 
@@ -51,9 +52,10 @@ describe Kit::Bit::Environment do
       expect { env.treeish = 1 }.to raise_error TypeError
     end
 
-    it "cannot be redefinfed" do
+    it "cannot be redefinfed while populated" do
       env.treeish = 'treeish_1'
-      expect { env.treeish = 'treeish_2' }.to raise_error RuntimeError
+      allow(env).to receive(:populated).and_return(true)
+      expect { env.treeish = 'treeish_2' }.to raise_error RuntimeError, /populated/
     end
   end
 
@@ -115,7 +117,7 @@ describe Kit::Bit::Environment do
       end
 
       it "will cleanup if populated" do
-        Kit::Bit::Utility.stub(:extract_repo)
+        allow(Kit::Bit::Utility).to receive :extract_repo
         env.populate
         expect(env).to receive :cleanup
         env.populate
@@ -132,12 +134,13 @@ describe Kit::Bit::Environment do
 
       it "fails when missing site" do
         env.treeish = 'master'
-        expect { env.populate }.to raise_error RuntimeError
+        expect { env.populate }.to raise_error RuntimeError, /populate without/
       end
 
       it "fails when missing treeish" do
         env.site = site_1
-        expect { env.populate }.to raise_error RuntimeError
+        env.treeish = ''
+        expect { env.populate }.to raise_error RuntimeError, /populate without/
       end
     end
   end

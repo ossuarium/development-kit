@@ -4,7 +4,7 @@ describe Kit::Bit::Assets do
 
   let(:config) do
     YAML.load <<-EOF
-      :settings:
+      :options:
         :js_compressor: :uglifier
         :not_a_good_setting: :some_value
       :paths:
@@ -17,21 +17,21 @@ describe Kit::Bit::Assets do
 
   describe ".new" do
 
-    it "should set default settings" do
-      expect(assets.settings).to eq Kit::Bit::Assets::DEFAULT_SETTINGS
+    it "should set default options" do
+      expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS
     end
 
-    it "should merge default settings" do
-      assets = Kit::Bit::Assets.new settings: { src_pre: '{{' }
-      expect(assets.settings).to eq Kit::Bit::Assets::DEFAULT_SETTINGS.merge(src_pre: '{{')
+    it "should merge default options" do
+      assets = Kit::Bit::Assets.new options: { src_pre: '{{' }
+      expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS.merge(src_pre: '{{')
     end
   end
 
-  describe "#settings=" do
+  describe "#options=" do
 
-    it "should merge with default settings" do
-      assets.settings[:src_pre] = '{{'
-      expect(assets.settings).to eq Kit::Bit::Assets::DEFAULT_SETTINGS.merge(src_pre: '{{')
+    it "should merge with default options" do
+      assets.options[:src_pre] = '{{'
+      expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS.merge(src_pre: '{{')
     end
   end
 
@@ -42,30 +42,30 @@ describe Kit::Bit::Assets do
     end
   end
 
-  describe "#load_settings" do
+  describe "#load_options" do
 
-    subject(:assets) { Kit::Bit::Assets.new settings: config[:settings] }
+    subject(:assets) { Kit::Bit::Assets.new options: config[:options] }
 
-    it "sets the settings for sprockets" do
+    it "sets the options for sprockets" do
       expect(assets.sprockets).to receive(:js_compressor=).with(:uglifier)
-      assets.load_settings
+      assets.load_options
     end
 
     it "does not load an unset setting" do
       expect(assets.sprockets).to_not receive(:css_compressor)
-      assets.load_settings
+      assets.load_options
     end
 
     it "does not load an invalid setting" do
       expect(assets.sprockets).to_not receive(:not_a_good_setting)
-      assets.load_settings
+      assets.load_options
     end
 
-    context "no settings" do
+    context "no options" do
 
-      it "does not fail when settings not set" do
-        assets.settings = {}
-        expect { assets.load_settings }.to_not raise_error
+      it "does not fail when options not set" do
+        assets.options = {}
+        expect { assets.load_options }.to_not raise_error
       end
     end
   end
@@ -106,8 +106,8 @@ describe Kit::Bit::Assets do
 
     subject(:assets) { Kit::Bit::Assets.new paths: config[:paths] }
 
-    it "should load settings" do
-      expect(assets).to receive :load_settings
+    it "should load options" do
+      expect(assets).to receive :load_options
       assets.assets
     end
 
@@ -116,8 +116,8 @@ describe Kit::Bit::Assets do
       assets.assets
     end
 
-    it "should not load settings and paths twice" do
-      expect(assets).to receive(:load_settings).once
+    it "should not load options and paths twice" do
+      expect(assets).to receive(:load_options).once
       expect(assets).to receive(:load_paths).once
       assets.assets
       assets.assets
