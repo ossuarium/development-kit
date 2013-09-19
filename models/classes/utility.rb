@@ -21,7 +21,7 @@ class Kit::Bit::Utility
   end
 
   # Checks that a path is really rooted under a given root directory.
-  # Forbids use of '../' and '~/' in path.
+  # Forbids use of `../` and `~/` in path.
   # @param [String] path
   # @param [String] root directory where path should be rooted under
   # @return [String] input path if valid
@@ -50,7 +50,7 @@ class Kit::Bit::Utility
 
   # Generates a new filename by hashing the file contents.
   # @param [String] path
-  # @return [String] new filename of the form file-HASH.extname
+  # @return [String] new filename of the form `file-HASH.extname`
   def self.hash_name path, contents=nil
     extname = File.extname path
     basename = path.chomp extname

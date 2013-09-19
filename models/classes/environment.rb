@@ -1,7 +1,7 @@
 # An environment is populated with the contents of
 # a site's repository at a specified commit.
 # The environment's files are rooted in a temporary directory.
-# An environment is the primary way to interact with a site's file.
+# An environment is the primary way to interact with a site's files.
 class Kit::Bit::Environment
 
   # All environment's temporary directories will be rooted under here.
