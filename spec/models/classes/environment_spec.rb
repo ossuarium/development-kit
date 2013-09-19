@@ -5,7 +5,7 @@ describe Kit::Bit::Environment do
   let(:site_1) { create :bit, name: 'site_1' }
   let(:site_2) { create :bit, name: 'site_2' }
 
-  subject(:env) { Kit::Bit::Environment.new }
+  subject(:environment) { Kit::Bit::Environment.new }
 
   after :all do
     Dir.glob("#{Kit::Bit::Environment.new.options[:tmp_dir]}/#{Kit::Bit::Environment.new.options[:dir_prefix]}*").each do |dir|
@@ -16,46 +16,46 @@ describe Kit::Bit::Environment do
   describe ".new" do
 
     it "should set default options" do
-      expect(env.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS
+      expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS
     end
 
     it "should merge default options" do
-      env = Kit::Bit::Environment.new options: { tmp_dir: '/tmp/path' }
-      expect(env.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
+      environment = Kit::Bit::Environment.new options: { tmp_dir: '/tmp/path' }
+      expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
     end
   end
 
   describe "#options=" do
 
     it "should merge with default options" do
-      env.options[:tmp_dir] = '/tmp/path'
-      expect(env.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
+      environment.options[:tmp_dir] = '/tmp/path'
+      expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
     end
   end
 
   describe "#site" do
 
     it "must be a Kit::Bit" do
-      expect { env.site = 'site_1' }.to raise_error TypeError
+      expect { environment.site = 'site_1' }.to raise_error TypeError
     end
 
     it "cannot be redefinfed while populated" do
-      env.site = site_1
-      allow(env).to receive(:populated).and_return(true)
-      expect { env.site = site_2 }.to raise_error RuntimeError, /populated/
+      environment.site = site_1
+      allow(environment).to receive(:populated).and_return(true)
+      expect { environment.site = site_2 }.to raise_error RuntimeError, /populated/
     end
   end
 
   describe "#treeish" do
 
     it "must be a string" do
-      expect { env.treeish = 1 }.to raise_error TypeError
+      expect { environment.treeish = 1 }.to raise_error TypeError
     end
 
     it "cannot be redefinfed while populated" do
-      env.treeish = 'treeish_1'
-      allow(env).to receive(:populated).and_return(true)
-      expect { env.treeish = 'treeish_2' }.to raise_error RuntimeError, /populated/
+      environment.treeish = 'treeish_1'
+      allow(environment).to receive(:populated).and_return(true)
+      expect { environment.treeish = 'treeish_2' }.to raise_error RuntimeError, /populated/
     end
   end
 
@@ -63,7 +63,7 @@ describe Kit::Bit::Environment do
 
     context "when required values set" do
 
-      subject(:env) { Kit::Bit::Environment.new site: site_1 }
+      subject(:environment) { Kit::Bit::Environment.new site: site_1 }
 
       before :each do
         allow(Kit::Bit::Utility).to receive(:make_random_directory).and_return('/tmp/rand_dir')
@@ -72,7 +72,7 @@ describe Kit::Bit::Environment do
       context "when directory is unset" do
 
         it "makes and returns a random directory" do
-          expect(env.directory).to eq '/tmp/rand_dir'
+          expect(environment.directory).to eq '/tmp/rand_dir'
         end
       end
 
@@ -80,8 +80,8 @@ describe Kit::Bit::Environment do
 
         it "returns the current directory" do
           expect(Kit::Bit::Utility).to receive(:make_random_directory).once
-          env.directory
-          expect(env.directory).to eq '/tmp/rand_dir'
+          environment.directory
+          expect(environment.directory).to eq '/tmp/rand_dir'
         end
       end
     end
@@ -89,20 +89,20 @@ describe Kit::Bit::Environment do
     context "when required values are not set" do
 
       it "fails if site is not set" do
-        expect { env.directory }.to raise_error RuntimeError
+        expect { environment.directory }.to raise_error RuntimeError
       end
     end
   end
 
   describe "#cleanup" do
 
-    subject(:env) { Kit::Bit::Environment.new site: site_1 }
+    subject(:environment) { Kit::Bit::Environment.new site: site_1 }
 
     it "removes the directory and resets @directory" do
-      env.directory
-      FileUtils.should_receive(:remove_entry_secure).with(env.directory)
-      env.cleanup
-      expect(env.instance_variable_get :@directory).to eq nil
+      environment.directory
+      FileUtils.should_receive(:remove_entry_secure).with(environment.directory)
+      environment.cleanup
+      expect(environment.instance_variable_get :@directory).to eq nil
     end
   end
 
@@ -110,7 +110,7 @@ describe Kit::Bit::Environment do
 
     context "required values set" do
 
-      subject(:env) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
+      subject(:environment) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
 
       before :each do
         allow(site_1).to receive(:repo).and_return(double Grit::Repo)
@@ -118,45 +118,45 @@ describe Kit::Bit::Environment do
 
       it "will cleanup if populated" do
         allow(Kit::Bit::Utility).to receive :extract_repo
-        env.populate
-        expect(env).to receive :cleanup
-        env.populate
+        environment.populate
+        expect(environment).to receive :cleanup
+        environment.populate
       end
 
       it "extracts the repo to the directory and sets populated true" do
-        expect(Kit::Bit::Utility).to receive(:extract_repo).with(site_1.repo, 'master', env.directory)
-        env.populate
-        expect(env.populated).to eq true
+        expect(Kit::Bit::Utility).to receive(:extract_repo).with(site_1.repo, 'master', environment.directory)
+        environment.populate
+        expect(environment.populated).to eq true
       end
     end
 
     context "missing required values" do
 
       it "fails when missing site" do
-        env.treeish = 'master'
-        expect { env.populate }.to raise_error RuntimeError, /populate without/
+        environment.treeish = 'master'
+        expect { environment.populate }.to raise_error RuntimeError, /populate without/
       end
 
       it "fails when missing treeish" do
-        env.site = site_1
-        env.treeish = ''
-        expect { env.populate }.to raise_error RuntimeError, /populate without/
+        environment.site = site_1
+        environment.treeish = ''
+        expect { environment.populate }.to raise_error RuntimeError, /populate without/
       end
     end
   end
 
   describe "config" do
 
-    subject(:env) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
+    subject(:environment) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
 
     it "cannot load config if not populated" do
-      expect { env.config }.to raise_error RuntimeError
+      expect { environment.config }.to raise_error RuntimeError
     end
 
     it "loads the config if populated" do
-      allow(env).to receive(:populated).and_return(true)
-      expect(YAML).to receive(:load_file).with("#{env.directory}/development_config.yml")
-      env.config
+      allow(environment).to receive(:populated).and_return(true)
+      expect(YAML).to receive(:load_file).with("#{environment.directory}/development_config.yml")
+      environment.config
     end
   end
 end
