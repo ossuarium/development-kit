@@ -56,6 +56,5 @@ describe Kit::Bit::Utility do
       hash = Digest::SHA1.hexdigest contents
       expect(Kit::Bit::Utility.hash_name 'path/to/file.js', contents).to eq "path/to/file-#{hash}.js"
     end
-
   end
 end
