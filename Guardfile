@@ -7,3 +7,9 @@ guard :rspec do
   watch('spec/spec_helper.rb') { 'spec' }
   watch('spec/factories.rb') { 'spec' }
 end
+
+guard :yard do
+  watch(%r{^actions/(.+)\.rb$})
+  watch(%r{^models/(.+)\.rb$})
+  watch(%r{^models/classes/(.+)\.rb$})
+end

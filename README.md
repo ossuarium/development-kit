@@ -1,23 +1,25 @@
-= development-kit
+# development-kit
 
-This is a kit using the {Kit framework}[https://github.com/razor-x/kit] designed to manage software projects,
+This is a kit using the [Kit framework](https://github.com/razor-x/kit) designed to manage software projects,
 specifically websites not designed using a single or standard development framework.
 The code which accomplishes these functions must be written as actions using the Kit framework to conform to your specific projects.
 
-== Development
+## Development
 
-=== Source Repository
+### Source Repository
 
-The {development-kit source}[https://github.com/razor-x/development-kit] is currently hosted at github.
+The [development-kit source](https://github.com/razor-x/development-kit) is currently hosted at github.
 To clone the project run
 
-  $ git clone git://github.com/razor-x/development-kit.git
+````bash
+$ git clone git://github.com/razor-x/development-kit.git
+````
 
-== License
+## License
 
 This development-kit is licensed under the MIT license.
 
-== Warranty
+## Warranty
 
 This software is provided "as is" and without any express or
 implied warranties, including, without limitation, the implied
