@@ -22,13 +22,13 @@ class Kit::Bit::Environment
   #   @return [Kit::Bit] site to build the environment with
   #
   # @!attribute treeish
-  #   @return [String] picks the commit to build the environment with
+  #   @return [String] the reference used to pick the commit to build the environment with
   #
   # @!attribute [r] directory
   #   @return [String] the environment's working directory
   #
-  # @!attribute [r] populated true if the site's repo has been extracted
-  #   @return [Boolean]
+  # @!attribute [r] populated
+  #   @return [Boolean] true if the site's repo has been extracted
   attr_reader :options, :site, :treeish, :directory, :populated
 
   def initialize site: nil, treeish: 'master', options: {}
@@ -63,14 +63,14 @@ class Kit::Bit::Environment
     end
   end
 
-  #
+  # Removes the environment's working directory.
   def cleanup
     FileUtils.remove_entry_secure directory if @directory
     @directory = nil
     @populated = false
   end
 
-  #
+  # Extracts the site's files from repository to the working directory.
   def populate
     cleanup if populated
     raise RuntimeError, "Cannot populate without 'site'" if site.nil?
@@ -80,7 +80,7 @@ class Kit::Bit::Environment
     @populated = true
   end
 
-  #
+  # @return [Hash] configuration loaded from {#options}`[:config_file]` under {#directory}
   def config
     raise RuntimeError, "Cannot load config unless populated" unless populated
     YAML.load_file "#{directory}/#{options[:config_file]}"
