@@ -1,5 +1,7 @@
 # development-kit
 
+This kit is *under development* and will have a beta release _soon_.
+
 This is a kit using the [Kit framework](https://github.com/razor-x/kit) designed to manage software projects,
 specifically websites not designed using a single or standard development framework.
 The code which accomplishes these functions must be written as actions using the Kit framework to conform to your specific projects.
