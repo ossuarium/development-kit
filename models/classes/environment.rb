@@ -93,7 +93,7 @@ class Kit::Bit::Environment
     @assets = []
 
     config[:assets].each do |type, opt|
-      next if [ :sources, :output ].include? type
+      next if [ :sources, :output, :src_pre, :src_post ].include? type
       next if opt[:paths].nil?
 
       assets.settings[:output] = config[:output] unless config[:output].nil?
@@ -107,24 +107,49 @@ class Kit::Bit::Environment
     @assets
   end
 
+  # @return [Array] all source files with asset tags
+  def sources_with_assets
+    return [] if config[:assets].nil?
+    return [] if config[:assets][:sources].nil?
+
+    @sources_with_assets = []
+
+    opts = { }
+    [ :src_pre, :src_post ].each do |opt|
+      opts[opt] = config[:assets][opt] unless config[:assets][opt].nil?
+    end
+
+    config[:assets][:sources].each do |path|
+      @sources_with_assets << Kit::Bit::Assets.find_tags("#{directory}/#{path}", nil, opts)
+    end
+
+    @sources_with_assets.flatten
+  end
+
+  # Finds all assets in {#sources_with_assets} and
+  # generates the assets and updates the sources.
   def compile_assets
-    config[:assets][:sources].each do |file|
-      file = "#{directory}/#{file}"
+    sources_with_assets.each do |file|
       source = File.read file
       assets.each { |a| a.update_source! source }
-      File.open(file, 'w') { |f| f.write source }
+      Kit::Bit::Utility.write source, file
     end
   end
 end
 
 private
 
+# Checks the config file for invalid settings.
+#
+# - Checks that paths are not absolute or use `../` or `~/`.
 def validate_config
   message = 'bad path in config'
 
   def safe_path?(path) Kit::Bit::Utility.safe_path?(path) end
 
   @config[:assets].each do |k, v|
+    # skip @config[:assets][:src_pre] and @config[:assets][:src_post]
+    next if [ :src_pre, :src_post ].include? k
 
     # process @config[:assets][:output] then go to the next option
     if k == :output

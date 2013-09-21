@@ -177,8 +177,10 @@ describe Kit::Bit::Environment do
       YAML.load <<-EOF
         :assets:
           :output: compiled
+          :src_pre: "(%"
           :sources:
-            - header.html
+            - public
+            - app/src
           :javascripts:
             :options:
               :js_compressor: :uglifier
@@ -239,6 +241,41 @@ describe Kit::Bit::Environment do
       it "does not fail if assets are not configured" do
         allow(environment).to receive(:config).and_return({})
         expect { assets }.not_to raise_error
+      end
+    end
+
+    describe "#sources_with_assets" do
+
+      let(:dir) { environment.directory }
+
+      it "looks for all asset types" do
+        expect(Kit::Bit::Assets).to receive(:find_tags).twice.with(anything, nil, anything)
+        environment.sources_with_assets
+      end
+
+      it "uses options as options" do
+        expect(Kit::Bit::Assets).to receive(:find_tags).twice.with(anything, anything, { src_pre: '(%' } )
+        environment.sources_with_assets
+      end
+
+      it "returns assets with tags" do
+        allow(Kit::Bit::Assets).to receive(:find_tags).with(dir + '/public', anything, anything).and_return(dir + '/public/header.html')
+        allow(Kit::Bit::Assets).to receive(:find_tags).with(dir + '/app/src', anything, anything).and_return(dir + '/app/src/head.tpl')
+        expect(environment.sources_with_assets).to eq [ "#{dir}/public/header.html", "#{dir}/app/src/head.tpl" ]
+      end
+    end
+
+    describe "#compile_assets" do
+
+      let(:sources) { [ "#{environment.directory}/public/header.html", "#{environment.directory}/app/src/head.tpl" ] }
+
+      it "compiles the assets and writes the sources" do
+        allow(environment).to receive(:sources_with_assets).and_return sources
+        allow(File).to receive(:read).with(sources[0]).and_return('data_1')
+        allow(File).to receive(:read).with(sources[1]).and_return('data_2')
+        expect(Kit::Bit::Utility).to receive(:write).with 'data_1', sources[0]
+        expect(Kit::Bit::Utility).to receive(:write).with 'data_2', sources[1]
+        environment.compile_assets
       end
     end
   end
