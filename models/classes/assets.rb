@@ -173,7 +173,7 @@ class Kit::Bit::Assets
     cmd << path
 
     files = []
-    Open3.popen2(*cmd) { |_, stdout| stdout.gets.each_line { |l| files << l.chomp } }
+    Open3.popen2(*cmd) { |_, stdout| stdout.gets.each_line { |l| files << l.chomp } unless stdout.nil? }
     files
   end
 end
