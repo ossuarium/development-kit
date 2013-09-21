@@ -4,8 +4,6 @@ require 'digest/sha1'
 # Utility functions for this kit.
 class Kit::Bit::Utility
 
-  protected
-
   # Make a random directory.
   # @param [String] root directory to place random directory
   # @param [String] prefix prepended to random directory name
