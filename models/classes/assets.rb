@@ -125,7 +125,12 @@ class Kit::Bit::Assets
         if $2 == options[:inline]
           assets[$3].to_s
         else
-          options[:cdn].empty? ? write($1) : options[:cdn] + write($1)
+          asset = write $1
+
+          # @todo raise warning or error if asset not found
+          p "asset not found: #{$1}" and next if asset.nil?
+
+          options[:cdn].empty? ? asset : options[:cdn] + asset
         end
       end
   end
