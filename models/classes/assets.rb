@@ -1,3 +1,4 @@
+require 'open3'
 require 'sprockets'
 
 # Flexible asset pipeline using Sprockets.
@@ -136,5 +137,40 @@ class Kit::Bit::Assets
     s = source
     update_source! s
     s
+  end
+
+  # Scans all non-binary files under `path` ({#directory} by default) for asset tags.
+  # Uses current asset {#type} (if set) and {#options}.
+  # @param path [String] where to look for source files
+  # @return [Array] files with asset tags
+  def find_tags path: directory
+    self.class.find_tags path, type, options
+  end
+
+  # Scans all non-binary files under `path` for asset tags.
+  # @param path [String] where to look for source files
+  # @param type [String, nil] only look for asset tags with this type (or any type if `nil`)
+  # @param options [Hash] merged with {DEFAULT_OPTIONS}
+  # (see #find_tags)
+  def self.find_tags path, type=nil, options={}
+    raise ArgumentError, 'path cannot be empty' if path.empty?
+
+    options = DEFAULT_OPTIONS.merge options
+    pre = Regexp.escape options[:src_pre]
+    post= Regexp.escape options[:src_post]
+
+    cmd = [ 'grep' ]
+    cmd.concat [ '-l', '-I', '-r', '-E' ]
+    cmd << \
+      if type.nil?
+        pre + '(\s+(\w|\s)+?)' + post
+      else
+        pre + '(\s+' + type.to_s + '\s+(\w|\s)+?)' + post
+      end
+    cmd << path
+
+    files = []
+    Open3.popen2(*cmd) { |_, stdout| stdout.gets.each_line { |l| files << l.chomp } }
+    files
   end
 end

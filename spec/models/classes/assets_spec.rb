@@ -206,6 +206,68 @@ describe Kit::Bit::Assets do
     end
   end
 
+  describe ".find_tags and #find_tags" do
+
+    let(:grep) { [ 'grep', '-l', '-I', '-r', '-E' ] }
+    let(:matches) { double IO }
+
+    describe ".find_tags" do
+
+      let(:regex) { '\[%(\s+(\w|\s)+?)%\]' }
+
+      it "fails if path is empty" do
+        expect { assets.find_tags '' }.to raise_error ArgumentError
+      end
+
+      it "greps in the path" do
+        expect(Open3).to receive(:popen2).with(*grep, regex, '/the/path')
+        Kit::Bit::Assets.find_tags '/the/path'
+      end
+
+      it "greps for only the asset tag for the given type" do
+        expect(Open3).to receive(:popen2).with(*grep, '\[%(\s+javascript\s+(\w|\s)+?)%\]', '/the/path')
+        Kit::Bit::Assets.find_tags '/the/path', :javascript
+      end
+
+      it "merges options" do
+        expect(Open3).to receive(:popen2).with(*grep, '\(%(\s+javascript\s+(\w|\s)+?)%\]', '/the/path')
+        Kit::Bit::Assets.find_tags '/the/path', :javascript, src_pre: '(%'
+      end
+
+      it "returns an array of results" do
+        allow(Open3).to receive(:popen2).with(*grep, regex, '/the/path').and_yield(nil, matches)
+        allow(matches).to receive(:gets).and_return("first/match_1\nsecond/match_2")
+        expect(Kit::Bit::Assets.find_tags '/the/path').to eq [ 'first/match_1', 'second/match_2' ]
+      end
+    end
+
+    describe "#find_tags" do
+
+      it "uses the type as the type" do
+        assets.type = :javascript
+        expect(Kit::Bit::Assets).to receive(:find_tags).with(anything, :javascript, anything)
+        assets.find_tags path: '/the/path'
+      end
+
+      it "uses the options as the options" do
+        expect(Kit::Bit::Assets).to receive(:find_tags).with(anything, anything, assets.options)
+        assets.find_tags path: '/the/path'
+      end
+
+      it "uses the directory as the path" do
+        assets.directory = '/the/directory'
+        expect(Kit::Bit::Assets).to receive(:find_tags).with('/the/directory', anything, anything)
+        assets.find_tags
+      end
+
+      it "can use an alternative path" do
+        assets.directory = '/the/directory'
+        expect(Kit::Bit::Assets).to receive(:find_tags).with('/the/path', anything, anything)
+        assets.find_tags path: '/the/path'
+      end
+    end
+  end
+
   describe "#update_source and #update_source!" do
 
     let(:asset) { double Sprockets::Asset }
