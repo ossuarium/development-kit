@@ -196,6 +196,7 @@ describe Kit::Bit::Environment do
               - other/javascripts
           :stylesheets:
             :options:
+              :output: css
               :css_compressor: :sass
             :paths:
               - assets/stylesheets
@@ -228,8 +229,10 @@ describe Kit::Bit::Environment do
       end
 
       it "sets the options for each asset" do
+        expect(assets[0].options).to include output: 'compiled'
         expect(assets[0].options).to include js_compressor: :uglifier
         expect(assets[0].options).to include gzip: true
+        expect(assets[1].options).to include output: 'css'
         expect(assets[1].options).to include css_compressor: :sass
       end
 

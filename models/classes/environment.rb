@@ -42,6 +42,11 @@
 #       :css_compressor: :sass
 #     :paths:
 #       - assets/stylesheets
+#   :images:
+#     :options:
+#       :output: images
+#     :paths:
+#       - assets/images
 # ````
 class Kit::Bit::Environment
 
@@ -138,9 +143,9 @@ class Kit::Bit::Environment
       next if [ :sources, :output, :src_pre, :src_post ].include? type
       next if opt[:paths].nil?
 
-      assets.settings[:output] = config[:output] unless config[:output].nil?
 
       assets = Kit::Bit::Assets.new directory: directory, paths: opt[:paths]
+      assets.options = { output: config[:assets][:output] } unless config[:assets][:output].nil?
       assets.options = opt[:options] unless opt[:options].nil?
       assets.type = type
       @assets << assets
