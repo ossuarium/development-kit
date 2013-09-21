@@ -215,8 +215,9 @@ def validate_config
     v.each do |asset_key, asset_value|
       # process :options
       if asset_key == :options
-        asset_value.each_key do |opt|
-          raise RuntimeError, 'bad option in config' if opt == :sprockets_options
+        asset_value.each do |opt_k, opt_v|
+          raise RuntimeError, 'bad option in config' if opt_k == :sprockets_options
+          raise RuntimeError, message if opt_k == :output && ! safe_path?(opt_v)
         end
         next
       end unless asset_value.nil?
