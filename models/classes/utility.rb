@@ -67,4 +67,11 @@ class Kit::Bit::Utility
     contents = File.read path if contents.nil?
     "#{basename}-#{Digest::SHA1.hexdigest contents}#{extname}"
   end
+
+  # Write contents to file.
+  # @param contents [String]
+  # @param file [String]
+  def self.write contents, file
+    File.open(file, 'w') { |f| f.write contents }
+  end
 end

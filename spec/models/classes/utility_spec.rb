@@ -57,4 +57,15 @@ describe Kit::Bit::Utility do
       expect(Kit::Bit::Utility.hash_name 'path/to/file.js', contents).to eq "path/to/file-#{hash}.js"
     end
   end
+
+  describe "write" do
+
+    let(:file) { double File }
+
+    it "writes to file" do
+      allow(File).to receive(:open).with('path/to/file', 'w').and_yield(file)
+      expect(file).to receive(:write).with('data')
+      Kit::Bit::Utility.write 'data', 'path/to/file'
+    end
+  end
 end
