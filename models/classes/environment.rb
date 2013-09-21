@@ -143,7 +143,6 @@ class Kit::Bit::Environment
       next if [ :sources, :output, :src_pre, :src_post ].include? type
       next if opt[:paths].nil?
 
-
       assets = Kit::Bit::Assets.new directory: directory, paths: opt[:paths]
       assets.options = { output: config[:assets][:output] } unless config[:assets][:output].nil?
       assets.options = opt[:options] unless opt[:options].nil?
@@ -214,8 +213,13 @@ def validate_config
 
     # process each asset type in @config[:assets]
     v.each do |asset_key, asset_value|
-      # skip :options
-      next if [ :options ].include? asset_key
+      # process :options
+      if asset_key == :options
+        asset_value.each_key do |opt|
+          raise RuntimeError, 'bad option in config' if opt == :sprockets_options
+        end
+        next
+      end unless asset_value.nil?
 
       # process each asset path
       asset_value.each_with_index do |path, i|
