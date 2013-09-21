@@ -15,11 +15,11 @@ describe Kit::Bit::Environment do
 
   describe ".new" do
 
-    it "should set default options" do
+    it "sets default options" do
       expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS
     end
 
-    it "should merge default options" do
+    it "merges default options" do
       environment = Kit::Bit::Environment.new options: { tmp_dir: '/tmp/path' }
       expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
     end
@@ -27,9 +27,15 @@ describe Kit::Bit::Environment do
 
   describe "#options=" do
 
-    it "should merge with default options" do
+    it "merges with default options" do
       environment.options[:tmp_dir] = '/tmp/path'
       expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path')
+    end
+
+    it "can be called twice and merge options" do
+      environment.options[:tmp_dir] = '/tmp/path'
+      environment.options[:dir_prefix] = '/tmp/path'
+      expect(environment.options).to eq Kit::Bit::Environment::DEFAULT_OPTIONS.merge(tmp_dir: '/tmp/path', dir_prefix: '/tmp/path')
     end
   end
 

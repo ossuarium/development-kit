@@ -17,11 +17,11 @@ describe Kit::Bit::Assets do
 
   describe ".new" do
 
-    it "should set default options" do
+    it "sets default options" do
       expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS
     end
 
-    it "should merge default options" do
+    it "merges default options" do
       assets = Kit::Bit::Assets.new options: { src_pre: '{{' }
       expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS.merge(src_pre: '{{')
     end
@@ -29,9 +29,15 @@ describe Kit::Bit::Assets do
 
   describe "#options=" do
 
-    it "should merge with default options" do
+    it "merges with default options" do
       assets.options[:src_pre] = '{{'
       expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS.merge(src_pre: '{{')
+    end
+
+    it "can be called twice and merge options" do
+      assets.options[:src_pre] = '{{'
+      assets.options[:src_post] = '}}'
+      expect(assets.options).to eq Kit::Bit::Assets::DEFAULT_OPTIONS.merge(src_pre: '{{', src_post: '}}')
     end
   end
 

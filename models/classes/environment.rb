@@ -75,13 +75,14 @@ class Kit::Bit::Environment
 
   def initialize site: nil, treeish: 'master', options: {}
     @populated = false
-    self.options = DEFAULT_OPTIONS.merge options
+    self.options = options
     self.site = site if site
     self.treeish = treeish
   end
 
   def options= options
-    @options = DEFAULT_OPTIONS.merge options
+    @options ||= DEFAULT_OPTIONS
+    @options = @options.merge options
   end
 
   def site= site

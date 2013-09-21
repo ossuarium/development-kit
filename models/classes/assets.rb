@@ -49,13 +49,14 @@ class Kit::Bit::Assets
   attr_accessor :directory, :paths, :type
 
   def initialize directory: '', options: {}, paths: {}
-    self.options = DEFAULT_OPTIONS.merge options
+    self.options = options
     self.directory = directory
     self.paths = paths
   end
 
   def options= options
-    @options = DEFAULT_OPTIONS.merge options
+    @options ||= DEFAULT_OPTIONS
+    @options = @options.merge options
   end
 
   # @return [Sprockets::Environment] the current sprockets environment
