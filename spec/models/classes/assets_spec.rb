@@ -218,7 +218,7 @@ describe Kit::Bit::Assets do
 
     describe ".find_tags" do
 
-      let(:regex) { '\[%(\s+(\w|\s)+?)%\]' }
+      let(:regex) { '\[%(.*?)%\]' }
 
       it "fails if path is empty" do
         expect { assets.find_tags '' }.to raise_error ArgumentError
@@ -230,12 +230,12 @@ describe Kit::Bit::Assets do
       end
 
       it "greps for only the asset tag for the given type" do
-        expect(Open3).to receive(:popen2).with(*grep, '\[%(\s+javascript\s+(\w|\s)+?)%\]', '/the/path')
+        expect(Open3).to receive(:popen2).with(*grep, '\[%\s+javascript\s+(.*?)%\]', '/the/path')
         Kit::Bit::Assets.find_tags '/the/path', :javascript
       end
 
       it "merges options" do
-        expect(Open3).to receive(:popen2).with(*grep, '\(%(\s+javascript\s+(\w|\s)+?)%\]', '/the/path')
+        expect(Open3).to receive(:popen2).with(*grep, '\(%\s+javascript\s+(.*?)%\]', '/the/path')
         Kit::Bit::Assets.find_tags '/the/path', :javascript, src_pre: '(%'
       end
 

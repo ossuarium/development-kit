@@ -161,9 +161,9 @@ class Kit::Bit::Assets
     cmd.concat [ '-l', '-I', '-r', '-E' ]
     cmd << \
       if type.nil?
-        pre + '(\s+(\w|\s)+?)' + post
+        pre + '(.*?)' + post
       else
-        pre + '(\s+' + type.to_s + '\s+(\w|\s)+?)' + post
+        pre + '\s+' + type.to_s + '\s+(.*?)' + post
       end
     cmd << path
 
