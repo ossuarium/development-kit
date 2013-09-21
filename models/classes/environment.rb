@@ -83,7 +83,7 @@ class Kit::Bit::Environment
 
   # @return [Hash] configuration loaded from {#options}`[:config_file]` under {#directory}
   def config
-    raise RuntimeError, "Cannot load config unless populated" unless populated
+    populate unless populated
     @config = YAML.load_file "#{directory}/#{options[:config_file]}"
     validate_config if @config
   end
@@ -91,8 +91,6 @@ class Kit::Bit::Environment
   # @return [Array<Kit::Bit::Assets>] assets with settings and paths loaded from config
   def assets
     @assets = []
-
-    populate unless populated
 
     config[:assets].each do |type, opt|
       next if [ :sources, :output ].include? type

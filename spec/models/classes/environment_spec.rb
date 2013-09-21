@@ -149,8 +149,19 @@ describe Kit::Bit::Environment do
 
     subject(:environment) { Kit::Bit::Environment.new site: site_1, treeish: 'master' }
 
-    it "cannot load config if not populated" do
-      expect { environment.config }.to raise_error RuntimeError
+    before :each do
+      allow(YAML).to receive(:load_file)
+    end
+
+    it "populate if not populated" do
+      expect(environment).to receive :populate
+      environment.config
+    end
+
+    it "populate only if not populated" do
+      allow(environment).to receive(:populated).and_return(true)
+      expect(environment).not_to receive :populate
+      environment.config
     end
 
     it "loads the config if populated" do
