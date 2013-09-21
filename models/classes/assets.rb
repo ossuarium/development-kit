@@ -37,9 +37,6 @@ class Kit::Bit::Assets
     sprockets_options: [ :js_compressor, :css_compressor ]
   }
 
-  # @!attribute options
-  #   @return [Hash] options (merged with {DEFAULT_OPTIONS}}.
-  #
   # @!attribute directory
   #   @return [String] directory which all paths will be relative to if set
   #
@@ -48,16 +45,18 @@ class Kit::Bit::Assets
   #
   # @!attribute type
   #   @return [Symbol] type of asset
-  attr_reader :options
   attr_accessor :directory, :paths, :type
 
   def initialize directory: '', options: {}, paths: {}
-    self.options = options
+    self.options options
     self.directory = directory
     self.paths = paths
   end
 
-  def options= options
+  # Uses {DEFAULT_OPTIONS} as initial value.
+  # @param options [Hash] merged with current options
+  # @return [Hash] current options
+  def options options={}
     @options ||= DEFAULT_OPTIONS
     @options = @options.merge options
   end

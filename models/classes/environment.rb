@@ -63,9 +63,6 @@ class Kit::Bit::Environment
     config_file: 'development-kit_config.yml'
   }
 
-  # @!attribute options
-  #   @return [Hash] options (merged with {DEFAULT_OPTIONS}}.
-  #
   # @!attribute site
   #   @return [Kit::Bit] site to build the environment with
   #
@@ -77,16 +74,19 @@ class Kit::Bit::Environment
   #
   # @!attribute [r] populated
   #   @return [Boolean] true if the site's repo has been extracted
-  attr_reader :options, :site, :treeish, :directory, :populated
+  attr_reader :site, :treeish, :directory, :populated
 
   def initialize site: nil, treeish: 'master', options: {}
     @populated = false
-    self.options = options
+    self.options options
     self.site = site if site
     self.treeish = treeish
   end
 
-  def options= options
+  # Uses {DEFAULT_OPTIONS} as initial value.
+  # @param options [Hash] merged with current options
+  # @return [Hash] current options
+  def options options={}
     @options ||= DEFAULT_OPTIONS
     @options = @options.merge options
   end
@@ -145,8 +145,8 @@ class Kit::Bit::Environment
       next if opt[:paths].nil?
 
       assets = Kit::Bit::Assets.new directory: directory, paths: opt[:paths]
-      assets.options = { output: config[:assets][:output] } unless config[:assets][:output].nil?
-      assets.options = opt[:options] unless opt[:options].nil?
+      assets.options output: config[:assets][:output] unless config[:assets][:output].nil?
+      assets.options opt[:options] unless opt[:options].nil?
       assets.type = type
       @assets << assets
     end unless config[:assets].nil?

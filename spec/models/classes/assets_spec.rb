@@ -27,7 +27,7 @@ describe Kit::Bit::Assets do
     end
   end
 
-  describe "#options=" do
+  describe "#options" do
 
     it "merges with default options" do
       assets.options[:src_pre] = '{{'
@@ -70,7 +70,6 @@ describe Kit::Bit::Assets do
     context "no options" do
 
       it "does not fail when options not set" do
-        assets.options = {}
         expect { assets.load_options }.to_not raise_error
       end
     end
@@ -141,7 +140,7 @@ describe Kit::Bit::Assets do
     let(:name) { 'app.js' }
 
     before :each do
-      assets.options = { hash: false }
+      assets.options hash: false
       allow(assets.assets).to receive(:[]).with('app').and_return(asset)
       allow(asset).to receive(:to_s).and_return(source)
       allow(asset).to receive(:logical_path).and_return('app.js')

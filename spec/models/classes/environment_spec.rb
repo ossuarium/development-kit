@@ -25,7 +25,7 @@ describe Kit::Bit::Environment do
     end
   end
 
-  describe "#options=" do
+  describe "#options" do
 
     it "merges with default options" do
       environment.options[:tmp_dir] = '/tmp/path'
