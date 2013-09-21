@@ -132,13 +132,13 @@ describe Kit::Bit::Assets do
 
     let(:asset) { double Sprockets::Asset }
     let(:source) { %q{alert('test')} }
-    let(:hash) { Digest::SHA1.hexdigest source }
-    let(:name) { "app-#{hash}.js" }
+    let(:name) { 'app-cb5a921a4e7663347223c41cd2fa9e11.js' }
 
     before :each do
       allow(assets.assets).to receive(:[]).with('app').and_return(asset)
       allow(asset).to receive(:to_s).and_return(source)
       allow(asset).to receive(:logical_path).and_return('app.js')
+      allow(asset).to receive(:digest).and_return('cb5a921a4e7663347223c41cd2fa9e11')
     end
 
     context "asset not found" do

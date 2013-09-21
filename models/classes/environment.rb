@@ -155,7 +155,7 @@ class Kit::Bit::Environment
 
     @sources_with_assets = []
 
-    opts = { }
+    opts = {}
     [ :src_pre, :src_post ].each do |opt|
       opts[opt] = config[:assets][opt] unless config[:assets][opt].nil?
     end

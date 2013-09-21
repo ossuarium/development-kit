@@ -58,16 +58,6 @@ class Kit::Bit::Utility
     end
   end
 
-  # Generates a new filename by hashing the file contents.
-  # @param [String] path
-  # @return [String] new filename of the form `file-HASH.extname`
-  def self.hash_name path, contents=nil
-    extname = File.extname path
-    basename = path.chomp extname
-    contents = File.read path if contents.nil?
-    "#{basename}-#{Digest::SHA1.hexdigest contents}#{extname}"
-  end
-
   # Write contents to file.
   # @param contents [String]
   # @param file [String]

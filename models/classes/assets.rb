@@ -99,7 +99,9 @@ class Kit::Bit::Assets
 
     return if asset.nil?
 
-    hashed_name = Kit::Bit::Utility.hash_name asset.logical_path.to_s, asset.to_s
+    logical_path = asset.logical_path.to_s
+    extname = File.extname logical_path
+    hashed_name = "#{logical_path.chomp extname}-#{asset.digest}#{File.extname logical_path}"
 
     if path.empty?
       path = directory

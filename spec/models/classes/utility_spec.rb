@@ -43,21 +43,6 @@ describe Kit::Bit::Utility do
     end
   end
 
-  describe "hash_name" do
-
-    it "returns a name with a hash" do
-      allow(Digest::SHA1).to receive(:hexdigest).and_return('1234567890')
-      allow(File).to receive(:read).and_return('foo')
-      expect(Kit::Bit::Utility.hash_name 'path/to/file.js').to eq 'path/to/file-1234567890.js'
-    end
-
-    it "can be supplied with contents when file does not exist" do
-      contents = 'file contents'
-      hash = Digest::SHA1.hexdigest contents
-      expect(Kit::Bit::Utility.hash_name 'path/to/file.js', contents).to eq "path/to/file-#{hash}.js"
-    end
-  end
-
   describe "write" do
 
     let(:file) { double File }
