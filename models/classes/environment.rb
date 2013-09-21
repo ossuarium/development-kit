@@ -22,6 +22,9 @@
 #
 #   # directories to scan for files with asset tags
 #   :sources:
+#     # putting assets/stylesheets first would allow asset tags,
+#     # e.g. for images, to be used in your stylesheets
+#     - assets/stylesheets
 #     - public
 #     - app/src
 #
@@ -40,12 +43,16 @@
 #   :stylesheets:
 #     :options:
 #       :css_compressor: :sass
+#       # compiled asset names include a uniqe hash by default
+#       # this can be toggled off
+#       :hash: false
 #     :paths:
 #       - assets/stylesheets
+#   # images can be part of the asset pipeline
 #   :images:
 #     :options:
+#       # output directory can be overridden per type
 #       :output: images
-#       :hash: false
 #     :paths:
 #       - assets/images
 # ````

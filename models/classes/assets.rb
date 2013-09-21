@@ -4,7 +4,7 @@ require 'sprockets'
 # Flexible asset pipeline using Sprockets.
 # Paths are loaded into a `Sprockets::Environment` (relative to {#directory} if given).
 # Asset tags are used in source code and replaced
-#with generated asset path or compiled source if `inline` is used.
+# with generated asset path or compiled source if `inline` is used.
 #
 # For example, if type is set to `:javascripts` the following replacements would be made:
 #
