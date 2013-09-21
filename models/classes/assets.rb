@@ -94,25 +94,19 @@ class Kit::Bit::Assets
 
   # Write a target asset to file with a hashed name.
   # @param target [String] logical path to asset
-  # @param path [String] where the asset will be written relative to
   # @param gzip [Boolean] if the asset should be gzipped
   # @param hash [Boolean] if the asset name should include the hash
   # @return [String, nil] the relative path to the written asset or `nil` if no such asset
-  def write target, path: options[:output], gzip: options[:gzip], hash: options[:hash]
+  def write target, gzip: options[:gzip], hash: options[:hash]
     asset = assets[target]
 
     return if asset.nil?
 
     name = hash ? asset.digest_path : asset.logical_path.to_s
+    name = "#{options[:output]}/#{name}" unless options[:output].empty?
 
-    if path.empty?
-      path = directory
-    elsif ! directory.empty?
-      path = "#{directory}/#{path}"
-    end unless path =~ /^\//
-
-    path += '/' unless path.empty?
-    path += name
+    path = directory.empty? ? '' : "#{directory}/"
+    path << name
 
     asset.write_to "#{path}.gz", compress: true if gzip
     asset.write_to path

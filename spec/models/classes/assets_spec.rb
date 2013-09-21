@@ -136,14 +136,12 @@ describe Kit::Bit::Assets do
   describe "#write" do
 
     let(:asset) { double Sprockets::Asset }
-    let(:source) { %q{alert('test')} }
-    let(:name) { 'app.js' }
+    let(:name) { 'lib/app.js' }
 
     before :each do
       assets.options hash: false
-      allow(assets.assets).to receive(:[]).with('app').and_return(asset)
-      allow(asset).to receive(:to_s).and_return(source)
-      allow(asset).to receive(:logical_path).and_return('app.js')
+      allow(assets.assets).to receive(:[]).with('lib/app').and_return(asset)
+      allow(asset).to receive(:logical_path).and_return(name)
     end
 
     context "asset not found" do
@@ -153,46 +151,39 @@ describe Kit::Bit::Assets do
       end
     end
 
-    context "path is given with no directory" do
+    context "output is set with no directory set" do
 
-      it "writes to relative path" do
-        expect(asset).to receive(:write_to).with("tmp/path/#{name}")
-        assets.write 'app', path: 'tmp/path'
-      end
-
-      it "writes to absolute path" do
-        expect(asset).to receive(:write_to).with("/tmp/path/#{name}")
-        assets.write 'app', path: '/tmp/path'
+      it "writes to relative path and returns the relative path" do
+        assets.options output: 'compiled'
+        expect(asset).to receive(:write_to).with("compiled/#{name}")
+        expect(assets.write 'lib/app').to eq "compiled/#{name}"
       end
     end
 
-    context "path is given with directory" do
+    context "output is set with directory set" do
 
-      it "writes to relative path under directory and returns the hashed logical path" do
+      it "writes to relative path under directory and returns the relative path" do
+        assets.options output: 'compiled'
         assets.directory = '/tmp/dir'
-        expect(asset).to receive(:write_to).with("/tmp/dir/path/#{name}")
-        expect(assets.write 'app', path: 'path').to eq name
-      end
-
-      it "writes to absolute path and returns the hashed logical path" do
-        assets.directory = '/tmp/dir'
-        expect(asset).to receive(:write_to).with("/tmp/path/#{name}")
-        expect(assets.write'app', path: '/tmp/path').to eq name
+        expect(asset).to receive(:write_to).with("/tmp/dir/compiled/#{name}")
+        expect(assets.write 'lib/app').to eq "compiled/#{name}"
       end
     end
 
-    context "no path is given with directory and returns the hashed logical path" do
-      it "writes to relative path under directory" do
+    context "no output is set with directory set and returns the relative path" do
+
+      it "writes to relative path under directory and returns the relative path" do
         assets.directory = '/tmp/dir'
         expect(asset).to receive(:write_to).with("/tmp/dir/#{name}")
-        expect(assets.write 'app').to eq name
+        expect(assets.write 'lib/app').to eq name
       end
     end
 
-    context "no path is given with no directory" do
-      it "writes to relative path" do
+    context "no output is set with no directory set" do
+
+      it "writes to relative path and returns the relative path" do
         expect(asset).to receive(:write_to).with(name)
-        expect(assets.write 'app').to eq name
+        expect(assets.write 'lib/app').to eq name
       end
     end
 
@@ -200,13 +191,13 @@ describe Kit::Bit::Assets do
 
       it "still returns the non-gzipped asset name" do
         allow(asset).to receive(:write_to)
-        expect(assets.write 'app', gzip: true).to eq name
+        expect(assets.write 'lib/app', gzip: true).to eq name
       end
 
       it "it gzips the assets as well" do
         expect(asset).to receive(:write_to).at_most(:once).with("#{name}.gz", compress: true)
         expect(asset).to receive(:write_to).at_most(:once).with(name)
-        assets.write 'app', gzip: true
+        assets.write 'lib/app', gzip: true
       end
     end
 
@@ -215,7 +206,7 @@ describe Kit::Bit::Assets do
       it "hashes the file name" do
         allow(asset).to receive(:digest_path).and_return('app-cb5a921a4e7663347223c41cd2fa9e11.js')
         expect(asset).to receive(:write_to).with('app-cb5a921a4e7663347223c41cd2fa9e11.js')
-        assets.write 'app', hash: true
+        assets.write 'lib/app', hash: true
       end
     end
   end
