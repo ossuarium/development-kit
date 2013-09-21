@@ -1,7 +1,48 @@
 # An environment is populated with the contents of
 # a site's repository at a specified commit.
-# The environment's files are rooted in a temporary directory.
+# The environment's files are rooted in a temporary {#directory}.
 # An environment is the primary way to interact with a site's files.
+#
+# An environment loads a {#config} file from the working {#directory};
+# by default, `development_config.yml`.
+#
+# Paths are all relative to the working {#directory}.
+#
+# ````yml
+# development_config.yml
+#
+# # asset settings
+# :assets:
+#   # directory to save compiled assets
+#   :output: compiled
+#
+#   # opening and closing brackets for asset source tags
+#   :src_pre: "[%"
+#   :src_post: "%]"
+#
+#   # directories to scan for files with asset tags
+#   :sources:
+#     - public
+#     - app/src
+#
+#   # all other keys are asset types
+#   :javascripts:
+#     # these options are passed to the Kit::Bit::Assets object
+#     :options:
+#       :js_compressor: :uglifier
+#       :gzip: true
+#     # these paths are loaded into the sprockets environment
+#     :paths:
+#       - assets/javascripts
+#       - other/javascripts
+#
+#   # this is another asset type which will have it's own namespace
+#   :stylesheets:
+#     :options:
+#       :css_compressor: :sass
+#     :paths:
+#       - assets/stylesheets
+# ````
 class Kit::Bit::Environment
 
   # Default {#options}.
