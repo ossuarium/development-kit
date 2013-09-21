@@ -301,6 +301,18 @@ describe Kit::Bit::Assets do
       EOF
     end
 
+    let(:result_with_cdn) do
+      <<-EOF
+        <head>
+          <script src="https://cdn.example.com/app-1234.js"></script>
+          <script src="https://cdn.example.com/vendor/modernizr-5678.js"></script>
+          <script>
+            alert('track');
+          </script>
+        </head>
+      EOF
+    end
+
     before :each do
       assets.type = :javascripts
       allow(assets).to receive(:write).with('app').and_return('app-1234.js')
@@ -314,6 +326,15 @@ describe Kit::Bit::Assets do
       it "replaces asset tags in sources" do
         assets.update_source! source
         expect(source).to eq result
+      end
+
+      context "cdn option set" do
+
+        it "uses cdn when it replaces asset tags in sources" do
+          assets.options cdn: 'https://cdn.example.com/'
+          assets.update_source! source
+          expect(source).to eq result_with_cdn
+        end
       end
     end
 

@@ -16,9 +16,12 @@ class Kit::Bit::Assets
 
   # Default {#options}.
   DEFAULT_OPTIONS = {
-    # default path to output all saved assets;
-    # can be relative to directory or absolute
+    # default path to output all saved assets (relative to directory)
     output: '',
+
+    # assume assets will be served under this url
+    # e.g. `https://cdn.example.com/`
+    cdn: '',
 
     # keyword to use in asset tag for inline assets
     inline: 'inline',
@@ -122,7 +125,7 @@ class Kit::Bit::Assets
         if $2 == options[:inline]
           assets[$3].to_s
         else
-          write $1
+          options[:cdn].empty? ? write($1) : options[:cdn] + write($1)
         end
       end
   end

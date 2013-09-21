@@ -182,8 +182,9 @@ describe Kit::Bit::Environment do
     let(:config) do
       YAML.load <<-EOF
         :assets:
-          :output: compiled
-          :src_pre: "(%"
+          :options:
+            :output: compiled
+            :src_pre: "(%"
           :sources:
             - public
             - app/src

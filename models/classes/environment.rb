@@ -13,12 +13,23 @@
 #
 # # asset settings
 # :assets:
-#   # directory to save compiled assets
-#   :output: compiled
+#   # all options are passed to `Kit::Bit::Assets#options` and will use those defaults if unset
+#   # unless otherwise mentioned, options can be set or overridden per asset type
+#   :options:
+#     # opening and closing brackets for asset source tags
+#     # global option only: cannot be overridden per asset type
+#     :src_pre: "[%"
+#     :src_post: "%]"
 #
-#   # opening and closing brackets for asset source tags
-#   :src_pre: "[%"
-#   :src_post: "%]"
+#     # relative directory to save compiled assets
+#     :output: compiled
+#
+#     # assume assets will be served under here
+#     :cdn: https://cdn.example.com/
+#
+#     # compiled asset names include a uniqe hash by default
+#     # this can be toggled off
+#     :hash: false
 #
 #   # directories to scan for files with asset tags
 #   :sources:
@@ -30,10 +41,8 @@
 #
 #   # all other keys are asset types
 #   :javascripts:
-#     # these options are passed to the Kit::Bit::Assets object
 #     :options:
 #       :js_compressor: :uglifier
-#       :gzip: true
 #     # these paths are loaded into the sprockets environment
 #     :paths:
 #       - assets/javascripts
@@ -43,15 +52,13 @@
 #   :stylesheets:
 #     :options:
 #       :css_compressor: :sass
-#       # compiled asset names include a uniqe hash by default
-#       # this can be toggled off
-#       :hash: false
+#
 #     :paths:
 #       - assets/stylesheets
 #   # images can be part of the asset pipeline
 #   :images:
+#     # options can be overridden per type
 #     :options:
-#       # output directory can be overridden per type
 #       :output: images
 #     :paths:
 #       - assets/images
@@ -148,11 +155,11 @@ class Kit::Bit::Environment
     @assets = []
 
     config[:assets].each do |type, opt|
-      next if [ :sources, :output, :src_pre, :src_post ].include? type
+      next if [ :sources ].include? type
       next if opt[:paths].nil?
 
       assets = Kit::Bit::Assets.new directory: directory, paths: opt[:paths]
-      assets.options output: config[:assets][:output] unless config[:assets][:output].nil?
+      assets.options config[:assets][:options] unless config[:assets][:options].nil?
       assets.options opt[:options] unless opt[:options].nil?
       assets.type = type
       @assets << assets
@@ -170,8 +177,8 @@ class Kit::Bit::Environment
 
     opts = {}
     [ :src_pre, :src_post ].each do |opt|
-      opts[opt] = config[:assets][opt] unless config[:assets][opt].nil?
-    end
+      opts[opt] = config[:assets][:options][opt] unless config[:assets][:options][opt].nil?
+    end unless config[:assets][:options].nil?
 
     config[:assets][:sources].each do |path|
       @sources_with_assets << Kit::Bit::Assets.find_tags("#{directory}/#{path}", nil, opts)
@@ -201,15 +208,21 @@ def validate_config
 
   def safe_path?(path) Kit::Bit::Utility.safe_path?(path) end
 
-  @config[:assets].each do |k, v|
-    # skip @config[:assets][:src_pre] and @config[:assets][:src_post]
-    next if [ :src_pre, :src_post ].include? k
-
-    # process @config[:assets][:output] then go to the next option
-    if k == :output
-      raise RuntimeError, message unless safe_path? v
-      next
+  def validate_asset_options opts
+    opts.each do |k,v|
+      raise RuntimeError, 'bad option in config' if k == :sprockets_options
+      raise RuntimeError, message if k == :output && ! safe_path?(v)
     end
+  end
+
+
+  @config[:assets].each do |k, v|
+
+    # process @config[:assets][:options] then go to the next option
+    if k == :options
+      validate_asset_options v
+      next
+    end unless v.nil?
 
     # process @config[:assets][:sources] then go to the next option
     if k == :sources
@@ -223,10 +236,7 @@ def validate_config
     v.each do |asset_key, asset_value|
       # process :options
       if asset_key == :options
-        asset_value.each do |opt_k, opt_v|
-          raise RuntimeError, 'bad option in config' if opt_k == :sprockets_options
-          raise RuntimeError, message if opt_k == :output && ! safe_path?(opt_v)
-        end
+        validate_asset_options asset_value
         next
       end unless asset_value.nil?
 
