@@ -4,12 +4,12 @@
 # An environment is the primary way to interact with a site's files.
 #
 # An environment loads a {#config} file from the working {#directory};
-# by default, `development_config.yml`.
+# by default, `development-kit_config.yml`.
 #
 # Paths are all relative to the working {#directory}.
 #
 # ````yml
-# development_config.yml
+# development-kit_config.yml
 #
 # # asset settings
 # :assets:
@@ -59,7 +59,7 @@ class Kit::Bit::Environment
     dir_prefix: 'development-kit_',
 
     # name of config file to load, relative to environment's working directory
-    config_file: 'development_config.yml'
+    config_file: 'development-kit_config.yml'
   }
 
   # @!attribute options

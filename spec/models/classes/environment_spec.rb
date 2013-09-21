@@ -172,7 +172,7 @@ describe Kit::Bit::Environment do
 
     it "loads the config if populated" do
       allow(environment).to receive(:populated).and_return(true)
-      expect(YAML).to receive(:load_file).with("#{environment.directory}/development_config.yml")
+      expect(YAML).to receive(:load_file).with("#{environment.directory}/development-kit_config.yml")
       environment.config
     end
   end
