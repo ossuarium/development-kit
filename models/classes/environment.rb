@@ -42,6 +42,11 @@
 #       :css_compressor: :sass
 #     :paths:
 #       - assets/stylesheets
+#   :images:
+#     :options:
+#       :output: images
+#     :paths:
+#       - assets/images
 # ````
 class Kit::Bit::Environment
 
