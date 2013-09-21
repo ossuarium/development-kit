@@ -171,10 +171,7 @@ class Kit::Bit::Assets
     cmd << path
 
     files = []
-    Open3.popen2(*cmd) do |_, stdout|
-      out = stdout.gets
-      out.each_line { |l| files << l.chomp } unless out.nil?
-    end
+    Open3.capture2(*cmd).first.each_line { |l| files << l.chomp unless l.empty? }
     files
   end
 end

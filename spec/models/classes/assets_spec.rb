@@ -214,7 +214,7 @@ describe Kit::Bit::Assets do
   describe ".find_tags and #find_tags" do
 
     let(:grep) { [ 'grep', '-l', '-I', '-r', '-E' ] }
-    let(:matches) { double IO }
+    let(:matches) { [ "first/match_1\nsecond/match_2" ] }
 
     describe ".find_tags" do
 
@@ -225,23 +225,22 @@ describe Kit::Bit::Assets do
       end
 
       it "greps in the path" do
-        expect(Open3).to receive(:popen2).with(*grep, regex, '/the/path')
+        expect(Open3).to receive(:capture2).with(*grep, regex, '/the/path').and_return(matches)
         Kit::Bit::Assets.find_tags '/the/path'
       end
 
       it "greps for only the asset tag for the given type" do
-        expect(Open3).to receive(:popen2).with(*grep, '\[%\s+javascript\s+(.*?)%\]', '/the/path')
+        expect(Open3).to receive(:capture2).with(*grep, '\[%\s+javascript\s+(.*?)%\]', '/the/path').and_return(matches)
         Kit::Bit::Assets.find_tags '/the/path', :javascript
       end
 
       it "merges options" do
-        expect(Open3).to receive(:popen2).with(*grep, '\(%\s+javascript\s+(.*?)%\]', '/the/path')
+        expect(Open3).to receive(:capture2).with(*grep, '\(%\s+javascript\s+(.*?)%\]', '/the/path').and_return(matches)
         Kit::Bit::Assets.find_tags '/the/path', :javascript, src_pre: '(%'
       end
 
       it "returns an array of results" do
-        allow(Open3).to receive(:popen2).with(*grep, regex, '/the/path').and_yield(nil, matches)
-        allow(matches).to receive(:gets).and_return("first/match_1\nsecond/match_2")
+        allow(Open3).to receive(:capture2).with(*grep, regex, '/the/path').and_return(matches)
         expect(Kit::Bit::Assets.find_tags '/the/path').to eq [ 'first/match_1', 'second/match_2' ]
       end
     end
