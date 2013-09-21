@@ -103,14 +103,7 @@ class Kit::Bit::Assets
 
     return if asset.nil?
 
-    logical_path = asset.logical_path.to_s
-    extname = File.extname logical_path
-    name = \
-      if hash
-        "#{logical_path.chomp extname}-#{asset.digest}#{File.extname logical_path}"
-      else
-        logical_path
-      end
+    name = hash ? asset.digest_path : asset.logical_path.to_s
 
     if path.empty?
       path = directory

@@ -213,7 +213,7 @@ describe Kit::Bit::Assets do
     context "when hash true" do
 
       it "hashes the file name" do
-        allow(asset).to receive(:digest).and_return('cb5a921a4e7663347223c41cd2fa9e11')
+        allow(asset).to receive(:digest_path).and_return('app-cb5a921a4e7663347223c41cd2fa9e11.js')
         expect(asset).to receive(:write_to).with('app-cb5a921a4e7663347223c41cd2fa9e11.js')
         assets.write 'app', hash: true
       end
