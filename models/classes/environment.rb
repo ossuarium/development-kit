@@ -45,6 +45,7 @@
 #   :images:
 #     :options:
 #       :output: images
+#       :hash: false
 #     :paths:
 #       - assets/images
 # ````

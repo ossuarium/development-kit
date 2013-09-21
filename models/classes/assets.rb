@@ -26,6 +26,9 @@ class Kit::Bit::Assets
     # if true, also generate a gzipped asset
     gzip: false,
 
+    # include hash in asset name
+    hash: true,
+
     # opening and closing brackets for asset source tags
     src_pre: '[%',
     src_post: '%]',
@@ -94,15 +97,21 @@ class Kit::Bit::Assets
   # @param target [String] logical path to asset
   # @param path [String] where the asset will be written relative to
   # @param gzip [Boolean] if the asset should be gzipped
+  # @param hash [Boolean] if the asset name should include the hash
   # @return [String, nil] the relative path to the written asset or `nil` if no such asset
-  def write target, path: options[:output], gzip: options[:gzip]
+  def write target, path: options[:output], gzip: options[:gzip], hash: options[:hash]
     asset = assets[target]
 
     return if asset.nil?
 
     logical_path = asset.logical_path.to_s
     extname = File.extname logical_path
-    hashed_name = "#{logical_path.chomp extname}-#{asset.digest}#{File.extname logical_path}"
+    name = \
+      if hash
+        "#{logical_path.chomp extname}-#{asset.digest}#{File.extname logical_path}"
+      else
+        logical_path
+      end
 
     if path.empty?
       path = directory
@@ -111,11 +120,11 @@ class Kit::Bit::Assets
     end unless path =~ /^\//
 
     path += '/' unless path.empty?
-    path += hashed_name
+    path += name
 
     asset.write_to "#{path}.gz", compress: true if gzip
     asset.write_to path
-    hashed_name
+    name
   end
 
   # (see #update_source)

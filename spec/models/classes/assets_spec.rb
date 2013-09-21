@@ -138,13 +138,13 @@ describe Kit::Bit::Assets do
 
     let(:asset) { double Sprockets::Asset }
     let(:source) { %q{alert('test')} }
-    let(:name) { 'app-cb5a921a4e7663347223c41cd2fa9e11.js' }
+    let(:name) { 'app.js' }
 
     before :each do
+      assets.options = { hash: false }
       allow(assets.assets).to receive(:[]).with('app').and_return(asset)
       allow(asset).to receive(:to_s).and_return(source)
       allow(asset).to receive(:logical_path).and_return('app.js')
-      allow(asset).to receive(:digest).and_return('cb5a921a4e7663347223c41cd2fa9e11')
     end
 
     context "asset not found" do
@@ -199,7 +199,7 @@ describe Kit::Bit::Assets do
 
     context "when gzip true" do
 
-      it "appends .gz to the path" do
+      it "still returns the non-gzipped asset name" do
         allow(asset).to receive(:write_to)
         expect(assets.write 'app', gzip: true).to eq name
       end
@@ -208,6 +208,15 @@ describe Kit::Bit::Assets do
         expect(asset).to receive(:write_to).at_most(:once).with("#{name}.gz", compress: true)
         expect(asset).to receive(:write_to).at_most(:once).with(name)
         assets.write 'app', gzip: true
+      end
+    end
+
+    context "when hash true" do
+
+      it "hashes the file name" do
+        allow(asset).to receive(:digest).and_return('cb5a921a4e7663347223c41cd2fa9e11')
+        expect(asset).to receive(:write_to).with('app-cb5a921a4e7663347223c41cd2fa9e11.js')
+        assets.write 'app', hash: true
       end
     end
   end
