@@ -52,6 +52,10 @@ describe Kit::Bit::Assets do
 
     subject(:assets) { Kit::Bit::Assets.new options: config[:options] }
 
+    it "returns itself" do
+      expect(assets.load_options).to be assets
+    end
+
     it "sets the options for sprockets" do
       expect(assets.sprockets).to receive(:js_compressor=).with(:uglifier)
       assets.load_options
@@ -78,6 +82,10 @@ describe Kit::Bit::Assets do
   describe "#load_paths" do
 
     subject(:assets) { Kit::Bit::Assets.new paths: config[:paths] }
+
+    it "returns itself" do
+      expect(assets.load_paths).to be assets
+    end
 
     context "when directory set" do
 

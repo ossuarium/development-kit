@@ -75,6 +75,7 @@ class Kit::Bit::Assets
     options[:sprockets_options].each do |opt|
       sprockets.send "#{opt}=".to_sym, options[opt] if options[opt]
     end
+    return self
   end
 
   # Load paths into the sprockets environment.
@@ -83,6 +84,7 @@ class Kit::Bit::Assets
     paths.each do |path|
       sprockets.append_path "#{directory + '/' unless directory.empty?}#{path}"
     end
+    return self
   end
 
   # @return [Sprockets::Environment] sprockets environment with {#options} and {#paths} loaded
@@ -119,20 +121,21 @@ class Kit::Bit::Assets
   # (see #update_source)
   # @note this modifies the `source` `String` in place
   def update_source! source
-      # e.g. /\[%\s+javascript\s+((\S+)\s?(\S+))\s+%\]/
-      regex = /#{Regexp.escape options[:src_pre]}\s+#{type.to_s.singularize}\s+((\S+)\s?(\S+))\s+#{Regexp.escape options[:src_post]}/
-      source.gsub! regex do
-        if $2 == options[:inline]
-          assets[$3].to_s
-        else
-          asset = write $1
+    # e.g. /\[%\s+javascript\s+((\S+)\s?(\S+))\s+%\]/
+    regex = /#{Regexp.escape options[:src_pre]}\s+#{type.to_s.singularize}\s+((\S+)\s?(\S+))\s+#{Regexp.escape options[:src_post]}/
+    source.gsub! regex do
+      if $2 == options[:inline]
+        assets[$3].to_s
+      else
+        asset = write $1
 
-          # @todo raise warning or error if asset not found
-          p "asset not found: #{$1}" and next if asset.nil?
+        # @todo raise warning or error if asset not found
+        p "asset not found: #{$1}" and next if asset.nil?
 
-          options[:cdn].empty? ? asset : options[:cdn] + asset
-        end
+        options[:cdn].empty? ? asset : options[:cdn] + asset
       end
+    end
+    return true
   end
 
   # Replaces all asset tags in source string with asset path or asset source.

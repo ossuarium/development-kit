@@ -131,6 +131,7 @@ class Kit::Bit::Environment
     FileUtils.remove_entry_secure directory if @directory
     @directory = nil
     @populated = false
+    return self
   end
 
   # Extracts the site's files from repository to the working directory.
@@ -141,6 +142,7 @@ class Kit::Bit::Environment
 
     Kit::Bit::Utility.extract_repo site.repo, treeish, directory
     @populated = true
+    return self
   end
 
   # @return [Hash] configuration loaded from {#options}`[:config_file]` under {#directory}
@@ -195,56 +197,57 @@ class Kit::Bit::Environment
       assets.each { |a| a.update_source! source }
       Kit::Bit::Utility.write source, file
     end
-  end
-end
-
-private
-
-# Checks the config file for invalid settings.
-#
-# - Checks that paths are not absolute or use `../` or `~/`.
-def validate_config
-  message = 'bad path in config'
-
-  def safe_path?(path) Kit::Bit::Utility.safe_path?(path) end
-
-  def validate_asset_options opts
-    opts.each do |k,v|
-      raise RuntimeError, 'bad option in config' if k == :sprockets_options
-      raise RuntimeError, message if k == :output && ! safe_path?(v)
-    end
+    return self
   end
 
+  private
 
-  @config[:assets].each do |k, v|
+  # Checks the config file for invalid settings.
+  #
+  # - Checks that paths are not absolute or use `../` or `~/`.
+  def validate_config
+    message = 'bad path in config'
 
-    # process @config[:assets][:options] then go to the next option
-    if k == :options
-      validate_asset_options v
-      next
-    end unless v.nil?
+    def safe_path?(path) Kit::Bit::Utility.safe_path?(path) end
 
-    # process @config[:assets][:sources] then go to the next option
-    if k == :sources
-      v.each_with_index do |source, i|
-        raise RuntimeError, message unless safe_path? source
+    def validate_asset_options opts
+      opts.each do |k,v|
+        raise RuntimeError, 'bad option in config' if k == :sprockets_options
+        raise RuntimeError, message if k == :output && ! safe_path?(v)
       end
-      next
     end
 
-    # process each asset type in @config[:assets]
-    v.each do |asset_key, asset_value|
-      # process :options
-      if asset_key == :options
-        validate_asset_options asset_value
+
+    @config[:assets].each do |k, v|
+
+      # process @config[:assets][:options] then go to the next option
+      if k == :options
+        validate_asset_options v
         next
-      end unless asset_value.nil?
+      end unless v.nil?
 
-      # process each asset path
-      asset_value.each_with_index do |path, i|
-        raise RuntimeError, message unless safe_path? path
+      # process @config[:assets][:sources] then go to the next option
+      if k == :sources
+        v.each_with_index do |source, i|
+          raise RuntimeError, message unless safe_path? source
+        end
+        next
       end
-    end
-  end unless @config[:assets].nil?
-  @config
+
+      # process each asset type in @config[:assets]
+      v.each do |asset_key, asset_value|
+        # process :options
+        if asset_key == :options
+          validate_asset_options asset_value
+          next
+        end unless asset_value.nil?
+
+        # process each asset path
+        asset_value.each_with_index do |path, i|
+          raise RuntimeError, message unless safe_path? path
+        end
+      end
+    end unless @config[:assets].nil?
+    @config
+  end
 end

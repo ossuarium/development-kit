@@ -120,10 +120,14 @@ describe Kit::Bit::Environment do
 
       before :each do
         allow(site_1).to receive(:repo).and_return(double Grit::Repo)
+        allow(Kit::Bit::Utility).to receive :extract_repo
+      end
+
+      it "returns itself" do
+        expect(environment.populate).to be environment
       end
 
       it "will cleanup if populated" do
-        allow(Kit::Bit::Utility).to receive :extract_repo
         environment.populate
         expect(environment).to receive :cleanup
         environment.populate
@@ -278,6 +282,11 @@ describe Kit::Bit::Environment do
     describe "#compile_assets" do
 
       let(:sources) { [ "#{environment.directory}/public/header.html", "#{environment.directory}/app/src/head.tpl" ] }
+
+      it "returns itself" do
+        allow(environment).to receive(:sources_with_assets).and_return([])
+        expect(environment.compile_assets).to be environment
+      end
 
       it "compiles the assets and writes the sources" do
         allow(environment).to receive(:sources_with_assets).and_return sources
