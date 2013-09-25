@@ -1,8 +1,5 @@
 # Add to the base `Kit::Bit` class here.
-require 'require_all'
 require 'grit'
-
-require_rel 'classes'
 
 # Bits in this kit are sites.
 # Sites in a single group all use the same repository.
